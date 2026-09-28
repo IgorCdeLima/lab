@@ -1,0 +1,38 @@
+# Os valores após ":-" são padrões APENAS para desenvolvimento local, usados quando
+# não existe .env. Em qualquer outro ambiente, defina-os no .env (ver .env.example).
+
+services:
+  db:
+    image: postgres:18.6-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lab}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lab_dev_somente_local}
+      POSTGRES_DB: ${POSTGRES_DB:-lab}
+    volumes:
+      # PostgreSQL 18+: o volume é montado em /var/lib/postgresql (não mais em .../data).
+      - dados:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d \"$${POSTGRES_DB}\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+      start_period: 10s
+    restart: unless-stopped
+
+  app:
+    build: .
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-lab}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lab_dev_somente_local}
+      POSTGRES_DB: ${POSTGRES_DB:-lab}
+      POSTGRES_HOST: ${POSTGRES_HOST:-db}
+      POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+    ports:
+      - "${APP_PORT:-8000}:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+volumes:
+  dados:
