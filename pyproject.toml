@@ -1,0 +1,4 @@
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+# A imagem roda como usuário sem permissão de escrita em /app: sem cache do pytest.
+addopts = "-ra -p no:cacheprovider"
