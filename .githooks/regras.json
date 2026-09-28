@@ -1,0 +1,13 @@
+{
+  "protegidos": [
+    "CLAUDE.md",
+    ".claude/",
+    ".githooks/",
+    ".gitignore",
+    ".gitattributes"
+  ],
+  "livres": [],
+  "restritos": {
+    "qualidade/": ["revisor", "seguranca", "coordenador"]
+  }
+}

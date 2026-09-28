@@ -1,0 +1,21 @@
+# Segredos
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
+.venv/
+
+# Dados locais
+uploads/
+
+# Claude Code: configurações pessoais
+.claude/settings.local.json*
+
+# Sistema operacional
+Thumbs.db
+desktop.ini
+.DS_Store
