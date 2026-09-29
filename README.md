@@ -29,6 +29,8 @@ docker compose run --rm --build app pytest
 
 Os testes rodam dentro do contêiner, contra o PostgreSQL real do Compose. O código é copiado para a imagem (sem bind mount), por isso o `--build`: sem ele, os testes rodam na última imagem construída. Com a imagem já atualizada, `docker compose run --rm app pytest` basta.
 
+> **Atenção:** `run --build` reconstrói a imagem, mas **não** atualiza o contêiner `app` que já está rodando. Para a aplicação em <http://localhost:8000> refletir o código novo, rode `docker compose up -d --build`.
+
 ## Configuração
 
 Tudo por variáveis de ambiente, listadas em [.env.example](.env.example). Para personalizar, copie para `.env` (fora do Git) e ajuste.

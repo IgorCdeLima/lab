@@ -2,14 +2,13 @@
 
 import logging
 from pathlib import Path
-from typing import Annotated
 
-from fastapi import Depends, FastAPI, Request
+from fastapi import FastAPI, Request
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.templating import Jinja2Templates
-from sqlalchemy import Engine
 from sqlalchemy.exc import SQLAlchemyError
 
+from app.config import ConfiguracaoIncompleta
 from app.db import banco_responde, obter_engine
 
 logger = logging.getLogger(__name__)
@@ -19,10 +18,11 @@ templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 
 @app.get("/health")
-def saude(engine: Annotated[Engine, Depends(obter_engine)]) -> JSONResponse:
+def saude() -> JSONResponse:
+    # O engine é obtido dentro do try: configuração incompleta também é "banco indisponível".
     try:
-        ok = banco_responde(engine)
-    except SQLAlchemyError:
+        ok = banco_responde(obter_engine())
+    except (SQLAlchemyError, ConfiguracaoIncompleta):
         logger.warning("Verificação de saúde: banco indisponível", exc_info=True)
         ok = False
     if not ok:

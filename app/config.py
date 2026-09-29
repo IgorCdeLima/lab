@@ -7,6 +7,10 @@ from functools import lru_cache
 from sqlalchemy import URL
 
 
+class ConfiguracaoIncompleta(RuntimeError):
+    """Falta uma variável de ambiente obrigatória."""
+
+
 @dataclass(frozen=True)
 class Config:
     postgres_user: str
@@ -29,7 +33,7 @@ class Config:
 def _obrigatoria(nome: str) -> str:
     valor = os.environ.get(nome)
     if not valor:
-        raise RuntimeError(f"Variável de ambiente obrigatória não definida: {nome}")
+        raise ConfiguracaoIncompleta(f"Variável de ambiente obrigatória não definida: {nome}")
     return valor
 
 
