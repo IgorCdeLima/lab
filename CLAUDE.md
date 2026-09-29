@@ -14,6 +14,18 @@ Ver `docs/adr/ADR-0001 Stack do projeto.md`: Python + FastAPI (páginas renderiz
 - Testes: `docker compose run --rm app pytest`
 - Parar: `docker compose down` (**nunca** `down -v`, que apaga o banco)
 
+### Portas por worktree
+
+Vários worktrees podem rodar ao mesmo tempo. Os volumes já são separados (o nome do projeto Compose vem da pasta), mas a porta não. Use:
+
+| Quem | Onde | Porta | Comando (Bash) |
+|---|---|---|---|
+| Humano | cópia principal (`main`) | 8000 | `docker compose up -d --build` |
+| Dev | worktree `T-000N-...` | 8000 + N (T-0002 → 8002) | `APP_PORT=8002 docker compose up -d --build` |
+| Revisor | worktree da tarefa, projeto próprio | 8100 + N (T-0002 → 8102) | `APP_PORT=8102 docker compose -p t0002-rev up -d --build` |
+
+No PowerShell: `$env:APP_PORT=8002; docker compose up -d --build`. Ao terminar, pare com `docker compose down` (com `-p` se usou) — **sem** `-v`; volumes de teste a remover vão para "Passos do humano" do cartão.
+
 Configuração por variáveis de ambiente em `.env` (fora do Git). O modelo versionado é `.env.example`. **Nunca** coloque segredos no código, no `docker-compose.yml` ou em commits.
 
 ## Onde fica cada coisa
