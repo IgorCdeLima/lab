@@ -1,8 +1,8 @@
 ---
 tipo: decisao
-status: proposta
-decidido_em:
-decidido_por:
+status: aceita
+decidido_em: 2026-09-28
+decidido_por: Igor
 substituida_por:
 criado: 2026-09-28
 tags: [lab, stack]

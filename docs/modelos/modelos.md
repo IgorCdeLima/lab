@@ -28,7 +28,7 @@ flowchart LR
 
 ## Dados (ER)
 
-Premissa atual: fornecedor como texto livre (ver questões em aberto nos requisitos).
+Fornecedor como texto livre (decisão registrada nos requisitos).
 
 ```mermaid
 erDiagram

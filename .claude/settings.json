@@ -26,7 +26,17 @@
       "PowerShell(git commit -n*)",
       "PowerShell(git commit * -n*)",
       "PowerShell(git -c *)",
-      "PowerShell(Remove-Item * -Recurse*)"
+      "PowerShell(Remove-Item * -Recurse*)",
+      "Bash(*IA_PAPEL*)",
+      "Bash(*papel.cmd*)",
+      "Bash(*papel.py*)",
+      "Bash(*ferramentas/papel*)",
+      "Bash(*ferramentas\\papel*)",
+      "PowerShell(*IA_PAPEL*)",
+      "PowerShell(*papel.cmd*)",
+      "PowerShell(*papel.py*)",
+      "PowerShell(*ferramentas/papel*)",
+      "PowerShell(*ferramentas\\papel*)"
     ],
     "ask": [
       "Edit(/CLAUDE.md)",
@@ -47,22 +57,73 @@
   },
   "hooks": {
     "SessionStart": [
-      { "hooks": [ { "type": "command", "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py", "timeout": 10 } ] }
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py",
+            "timeout": 10
+          }
+        ]
+      }
     ],
     "SessionEnd": [
-      { "hooks": [ { "type": "command", "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py", "timeout": 10 } ] }
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py",
+            "timeout": 10
+          }
+        ]
+      }
     ],
     "PostToolUse": [
-      { "matcher": "Edit|Write|NotebookEdit|Bash|PowerShell", "hooks": [ { "type": "command", "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py", "timeout": 10 } ] }
+      {
+        "matcher": "Edit|Write|NotebookEdit|Bash|PowerShell",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py",
+            "timeout": 10
+          }
+        ]
+      }
     ],
     "PostToolUseFailure": [
-      { "matcher": "*", "hooks": [ { "type": "command", "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py", "timeout": 10 } ] }
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py",
+            "timeout": 10
+          }
+        ]
+      }
     ],
     "PermissionDenied": [
-      { "matcher": "*", "hooks": [ { "type": "command", "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py", "timeout": 10 } ] }
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py",
+            "timeout": 10
+          }
+        ]
+      }
     ],
     "StopFailure": [
-      { "hooks": [ { "type": "command", "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py", "timeout": 10 } ] }
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "py -3 D:/01_IA/ferramentas/hooks/registrar_evento.py",
+            "timeout": 10
+          }
+        ]
+      }
     ]
   }
 }

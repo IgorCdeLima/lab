@@ -38,8 +38,11 @@ Uma página única onde o usuário cadastra produtos e vê os produtos já cadas
 | RNF-04 | Uploads salvos em volume, com nome gerado pela aplicação (nunca o nome enviado pelo usuário) |
 | RNF-05 | Formulários protegidos contra envio malicioso (escape de HTML nas páginas, limite de tamanho no upload) |
 
+## Decisões
+
+- **Fornecedor é texto livre** em cada produto (decidido por Igor em 2026-09-28). Um cadastro próprio de fornecedores pode vir depois, se necessário.
+
 ## Questões em aberto
 
-- **Fornecedor:** texto livre em cada produto (mais simples) ou cadastro próprio de fornecedores, escolhido numa lista? Premissa atual: texto livre, revisável depois.
 - **Edição e exclusão** de produtos: fora do escopo inicial.
 - **Autenticação:** fora do escopo inicial (uso local).
