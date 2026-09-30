@@ -8,6 +8,18 @@
   ],
   "livres": [],
   "restritos": {
-    "qualidade/": ["revisor", "seguranca", "coordenador"]
+    "qualidade/": [
+      "revisor",
+      "seguranca",
+      "coordenador"
+    ],
+    "qualidade/ux/": [
+      "designer",
+      "revisor",
+      "coordenador"
+    ],
+    "docs/design/": [
+      "designer"
+    ]
   }
 }
