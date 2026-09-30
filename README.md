@@ -10,7 +10,7 @@ Requer apenas Docker com Compose.
 
 ```
 docker compose up -d --build     # sobe app e db (o app espera o banco ficar saudável)
-docker compose run --rm app pytest   # testes (contra o PostgreSQL do Compose)
+docker compose run --rm test      # testes (imagem propria com pytest, contra o PostgreSQL do Compose)
 docker compose down              # para (NUNCA use down -v: apaga o banco)
 ```
 
