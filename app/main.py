@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Redirect
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from starlette.datastructures import MutableHeaders
 
 from app import db, imagens
 from app.models import Produto
@@ -40,6 +41,43 @@ async def limitar_requisicao(request: Request, call_next):
             return JSONResponse(status_code=413, content={"erro": "Requisição grande demais."})
     return await call_next(request)
 
+
+CABECALHOS_SEGURANCA = {
+    "Content-Security-Policy": (
+        "default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; "
+        "form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
+    ),
+    "X-Frame-Options": "DENY",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+}
+
+
+class CabecalhosSeguranca:
+    """Middleware ASGI puro: define (substitui, nunca duplica) os cabeçalhos em toda resposta.
+
+    Registrado depois do `limitar_requisicao`, fica por fora dele e cobre também 411/413.
+    'unsafe-inline' só em style-src: o CSS está num <style> do template (RNF-08, T-0007).
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+
+        async def enviar(msg):
+            if msg["type"] == "http.response.start":
+                cab = MutableHeaders(scope=msg)
+                for nome, valor in CABECALHOS_SEGURANCA.items():
+                    cab[nome] = valor
+            await send(msg)
+
+        await self.app(scope, receive, enviar)
+
+
+app.add_middleware(CabecalhosSeguranca)
 
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
@@ -116,7 +154,6 @@ def imagem_do_produto(nome: str):
     return FileResponse(
         arquivo,
         media_type=imagens.TIPOS[nome.rsplit(".", 1)[1]],
-        headers={"X-Content-Type-Options": "nosniff"},
     )
 
 
