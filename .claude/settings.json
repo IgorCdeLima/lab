@@ -36,7 +36,12 @@
       "PowerShell(*papel.cmd*)",
       "PowerShell(*papel.py*)",
       "PowerShell(*ferramentas/papel*)",
-      "PowerShell(*ferramentas\\papel*)"
+      "PowerShell(*ferramentas\\papel*)",
+      "PowerShell(*Set-Content*)",
+      "PowerShell(*Out-File*)",
+      "PowerShell(*Add-Content*)",
+      "PowerShell(*WriteAllText*)",
+      "PowerShell(*WriteAllLines*)"
     ],
     "ask": [
       "Edit(/CLAUDE.md)",
