@@ -9,14 +9,16 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 COPY app ./app
 
-# Estagio "dev": base + dependencias de teste. Usado so pelo servico "test" do Compose.
-# tests/ entra por volume (o .dockerignore o deixa fora da imagem).
-# A imagem so leva app/ e requirements.txt; nada de tests/ nem requirements-dev.txt.
+# Estagio "dev": base + ferramentas de desenvolvimento (pytest, ruff, pip-audit).
+# Usado pelos servicos "test", "lint" e "audit" do Compose.
+# Leva app/, requirements.txt e requirements-dev.txt; tests/ entra por volume
+# (o .dockerignore o deixa fora da imagem).
 FROM base AS dev
 COPY requirements-dev.txt .
 RUN pip install --no-cache-dir -r requirements-dev.txt
 
-# Estagio final (padrao): imagem de execucao, sem tests/ e sem pytest/httpx.
+# Estagio final (padrao): imagem de execucao. So leva app/ e requirements.txt:
+# nada de tests/, requirements-dev.txt, pytest, ruff nem pip-audit.
 FROM base AS runtime
 
 EXPOSE 8000

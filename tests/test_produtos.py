@@ -1,4 +1,4 @@
-from datetime import datetime, timedelta, timezone
+from datetime import UTC, datetime, timedelta
 from decimal import Decimal
 
 import pytest
@@ -107,7 +107,7 @@ def test_erro_preserva_valores_digitados(client):
 
 def test_listagem_ordena_por_criado_em(client, sessao):
     # horários explícitos; ids em ordem contrária à data provam que não é só o id
-    base = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    base = datetime(2026, 1, 1, tzinfo=UTC)
     for nome, dias in [("Meio", 1), ("Novo", 2), ("Antigo", 0)]:
         sessao.add(Produto(nome=nome, valor=Decimal("1.00"), fornecedor="F",
                            criado_em=base + timedelta(days=dias)))
