@@ -23,7 +23,7 @@ def test_saude_com_banco_indisponivel(monkeypatch):
     assert r.json()["banco"] != "ok"
 
 
-def test_pagina_inicial():
+def test_pagina_inicial(client):
     r = client.get("/")
     assert r.status_code == 200
     assert "text/html" in r.headers["content-type"]

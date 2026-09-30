@@ -1,9 +1,16 @@
+from collections.abc import Iterator
+
 from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
+from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
 from app.config import database_url
 
 _engine: Engine | None = None
+
+
+class Base(DeclarativeBase):
+    pass
 
 
 def get_engine() -> Engine:
@@ -13,6 +20,18 @@ def get_engine() -> Engine:
             database_url(), pool_pre_ping=True, connect_args={"connect_timeout": 3}
         )
     return _engine
+
+
+def get_session() -> Iterator[Session]:
+    """Dependência do FastAPI: uma sessão por requisição (sobrescrita nos testes)."""
+    with sessionmaker(bind=get_engine(), expire_on_commit=False)() as sessao:
+        yield sessao
+
+
+def criar_tabelas() -> None:
+    from app import models  # noqa: F401  (registra as tabelas no metadata)
+
+    Base.metadata.create_all(get_engine())
 
 
 def banco_ok() -> bool:
