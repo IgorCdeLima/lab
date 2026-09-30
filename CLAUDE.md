@@ -12,6 +12,8 @@ Ver `docs/adr/ADR-0001 Stack do projeto.md`: Python + FastAPI (páginas renderiz
 
 - Subir: `docker compose up -d --build`
 - Testes: `docker compose run --rm test`
+- Lint (ruff): `docker compose run --rm lint`
+- Vulnerabilidades (pip-audit): `docker compose run --build --rm audit` (le as dependencias instaladas na imagem dev; `--build` evita auditar imagem desatualizada, observacao O1)
 - Parar: `docker compose down` (**nunca** `down -v`, que apaga o banco)
 
 ### Portas por worktree
