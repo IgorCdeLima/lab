@@ -28,7 +28,7 @@ flowchart LR
 
 ## Dados (ER)
 
-Fornecedor como texto livre (decisão registrada nos requisitos).
+Fornecedor como texto livre (decisão registrada nos requisitos). Tabela `produto` criada por `Base.metadata.create_all` na inicialização (T-0002); a coluna `imagem_arquivo` entra na T-0003, portanto ainda não existe na tabela. Testes usam o banco separado `<POSTGRES_DB>_test`, com rollback por teste.
 
 ```mermaid
 erDiagram
