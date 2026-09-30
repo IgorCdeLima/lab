@@ -72,9 +72,38 @@ def test_tamanho_exato_aceito(client, sessao):
     assert enviar(client, conteudo).status_code == 303
 
 
-def test_requisicao_gigante_recusada_por_content_length(client, sessao):
-    r = client.post("/produtos", content=b"x", headers={"content-length": str(10 * 1024 * 1024)})
+def test_imagem_de_3mb_volta_como_422_na_pagina_com_campos_preservados(client, sessao, pasta_uploads):
+    r = enviar(client, PNG + b"0" * (3 * 1024 * 1024), nome="Preservado", valor="9,90")
+    assert r.status_code == 422
+    assert "A imagem deve ter no máximo 2 MB." in r.text
+    assert 'value="Preservado"' in r.text and 'value="9,90"' in r.text
+    assert sessao.scalars(select(Produto)).all() == []
+    assert list(pasta_uploads.iterdir()) == []
+
+
+def test_requisicao_acima_do_teto_recusada_por_content_length(client, sessao):
+    r = client.post("/produtos", content=b"x", headers={"content-length": str(11 * 1024 * 1024)})
     assert r.status_code == 413
+
+
+def test_post_chunked_sem_content_length_recusado(client, sessao):
+    def corpo():
+        yield b"nome=x"
+
+    r = client.post("/produtos", content=corpo(),
+                    headers={"content-type": "application/x-www-form-urlencoded"})
+    assert r.status_code == 411
+    assert sessao.scalars(select(Produto)).all() == []
+
+
+def test_commit_falhou_remove_arquivo(client, sessao, pasta_uploads, monkeypatch):
+    def falha():
+        raise RuntimeError("banco caiu")
+
+    monkeypatch.setattr(sessao, "commit", falha)
+    with pytest.raises(RuntimeError):
+        enviar(client, PNG)
+    assert list(pasta_uploads.iterdir()) == []
 
 
 def test_sem_imagem(client, sessao):

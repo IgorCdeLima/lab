@@ -41,7 +41,7 @@ Uma página única onde o usuário cadastra produtos e vê os produtos já cadas
 ## Notas de implementacao (T-0003)
 
 - Tipo da imagem pelos bytes iniciais (JPEG `FFD8FF`, PNG, WebP `RIFF....WEBP`); SVG e recusado. A imagem nao e reprocessada.
-- Limite de 2 MB: leitura limitada a 2 MB + 1 byte e recusa previa (413) por `Content-Length` acima de 2 MB + 64 KB. Requisicao chunked sem `Content-Length` nao e barrada antes do parse (limite a tratar no proxy, se houver).
+- Limite de 2 MB: leitura limitada a 2 MB + 1 byte, com erro 422 na pagina (campos preservados). Teto anti-DoS separado: `Content-Length` acima de 10 MB recebe 413; POST sem `Content-Length` (chunked) recebe 411.
 
 ## Decisões
 

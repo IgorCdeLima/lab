@@ -23,12 +23,21 @@ async def lifespan(_: FastAPI):
 app = FastAPI(title="Cadastro de produtos", lifespan=lifespan)
 
 
+LIMITE_REQUISICAO = 10 * 1024 * 1024  # teto anti-DoS, bem acima dos 2 MB da imagem
+
+
 @app.middleware("http")
-async def limitar_upload(request: Request, call_next):
-    """Recusa cedo (413) requisições cujo Content-Length excede o limite da imagem + campos."""
-    tamanho = request.headers.get("content-length", "")
-    if request.method == "POST" and tamanho.isdigit() and int(tamanho) > imagens.TAMANHO_MAXIMO + 64 * 1024:
-        return JSONResponse(status_code=413, content={"erro": "Requisição grande demais."})
+async def limitar_requisicao(request: Request, call_next):
+    """Teto anti-DoS. Imagens de 2 a 10 MB passam e recebem 422 com mensagem na página.
+
+    POST sem Content-Length (chunked) é recusado com 411: navegadores sempre enviam o cabeçalho.
+    """
+    if request.method == "POST":
+        tamanho = request.headers.get("content-length", "")
+        if not tamanho.isdigit():
+            return JSONResponse(status_code=411, content={"erro": "Content-Length obrigatório."})
+        if int(tamanho) > LIMITE_REQUISICAO:
+            return JSONResponse(status_code=413, content={"erro": "Requisição grande demais."})
     return await call_next(request)
 
 
