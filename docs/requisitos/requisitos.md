@@ -24,7 +24,7 @@ Uma página única onde o usuário cadastra produtos e vê os produtos já cadas
 | Campo | Regra |
 |---|---|
 | Nome | Obrigatório, 1 a 120 caracteres, sem espaços nas pontas |
-| Valor | Obrigatório, maior que zero, duas casas decimais, até 99.999.999,99 |
+| Valor | Obrigatório, maior que zero, duas casas decimais, até 99.999.999,99. Formato pt-BR: vírgula decimal, ponto de milhar (`1.234` = 1234,00); ponto decimal só sem vírgula e com 1-2 casas (`12.5`); mais de duas casas é erro, sem arredondar |
 | Fornecedor | Obrigatório, 1 a 120 caracteres |
 | Imagem | Opcional; JPEG, PNG ou WebP; até 2 MB; tipo validado pelo conteúdo, não só pela extensão |
 
