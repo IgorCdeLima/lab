@@ -32,6 +32,9 @@ def criar_tabelas() -> None:
     from app import models  # noqa: F401  (registra as tabelas no metadata)
 
     Base.metadata.create_all(get_engine())
+    # create_all não altera tabela existente: bancos criados na T-0002 ganham a coluna nova.
+    with get_engine().begin() as conn:
+        conn.execute(text("ALTER TABLE produto ADD COLUMN IF NOT EXISTS imagem_arquivo VARCHAR(64)"))
 
 
 def banco_ok() -> bool:

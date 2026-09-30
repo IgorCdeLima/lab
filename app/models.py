@@ -14,4 +14,5 @@ class Produto(Base):
     nome: Mapped[str] = mapped_column(String(120))
     valor: Mapped[Decimal] = mapped_column(Numeric(10, 2))
     fornecedor: Mapped[str] = mapped_column(String(120))
+    imagem_arquivo: Mapped[str | None] = mapped_column(String(64), nullable=True)
     criado_em: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())

@@ -23,6 +23,9 @@ services:
       POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-lab_dev_local}
       POSTGRES_HOST: ${POSTGRES_HOST:-db}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
+      UPLOADS_DIR: /uploads
+    volumes:
+      - uploads:/uploads
     ports:
       - "${APP_PORT:-8000}:8000"
     depends_on:
@@ -31,3 +34,4 @@ services:
 
 volumes:
   db_data:
+  uploads:
