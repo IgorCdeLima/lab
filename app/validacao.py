@@ -2,22 +2,25 @@ import re
 from decimal import Decimal
 
 VALOR_MAXIMO = Decimal("99999999.99")
-# 1234,56 | 1.234,56 | 1234 | 1234.56 (ponto decimal só sem vírgula e com 1-2 casas)
-_PADROES = (
-    re.compile(r"\d+(,\d{1,2})?"),
-    re.compile(r"\d{1,3}(\.\d{3})+(,\d{1,2})?"),
-    re.compile(r"\d+\.\d{1,2}"),
-)
+# Regra do valor (pt-BR): vírgula é o separador decimal e ponto é milhar.
+#   1234 | 1234,56 | 1.234 | 1.234,56 | 1.234.567 -> ponto = milhar (grupos de 3 dígitos)
+#   1234.56 | 12.5 -> ponto decimal só sem vírgula e com 1-2 casas
+# Assim "1.234" é mil duzentos e trinta e quatro (nunca 1,23). Mais de 2 casas é erro (sem arredondar).
+_MILHAR = re.compile(r"(\d+|\d{1,3}(\.\d{3})+)(,\d{1,2})?")
+_PONTO_DECIMAL = re.compile(r"\d+\.\d{1,2}")
+_CONTROLE = re.compile(r"[\x00-\x1f\x7f]")  # PostgreSQL não guarda NUL; controles não fazem sentido
 
 
 def interpretar_valor(texto: str) -> Decimal | None:
     """Converte texto em Decimal (nunca float); None se o formato for inválido."""
     texto = texto.strip()
-    if not any(p.fullmatch(texto) for p in _PADROES):
+    if _MILHAR.fullmatch(texto):
+        normal = texto.replace(".", "").replace(",", ".")
+    elif _PONTO_DECIMAL.fullmatch(texto):
+        normal = texto
+    else:
         return None
-    if "," in texto:
-        texto = texto.replace(".", "").replace(",", ".")
-    return Decimal(texto).quantize(Decimal("0.01"))
+    return Decimal(normal).quantize(Decimal("0.01"))
 
 
 def validar_produto(nome: str, valor: str, fornecedor: str):
@@ -26,12 +29,16 @@ def validar_produto(nome: str, valor: str, fornecedor: str):
     nome = nome.strip()
     fornecedor = fornecedor.strip()
 
-    if not nome:
+    if _CONTROLE.search(nome):
+        erros["nome"] = "O nome contém caracteres inválidos."
+    elif not nome:
         erros["nome"] = "Informe o nome."
     elif len(nome) > 120:
         erros["nome"] = "O nome deve ter no máximo 120 caracteres."
 
-    if not fornecedor:
+    if _CONTROLE.search(fornecedor):
+        erros["fornecedor"] = "O fornecedor contém caracteres inválidos."
+    elif not fornecedor:
         erros["fornecedor"] = "Informe o fornecedor."
     elif len(fornecedor) > 120:
         erros["fornecedor"] = "O fornecedor deve ter no máximo 120 caracteres."

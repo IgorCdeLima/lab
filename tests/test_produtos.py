@@ -1,3 +1,4 @@
+from datetime import datetime, timedelta, timezone
 from decimal import Decimal
 
 import pytest
@@ -48,7 +49,8 @@ def test_limite_120_caracteres(client, sessao, campo):
 
 @pytest.mark.parametrize(
     "valor",
-    ["0", "0,00", "-5", "abc", "1,234", "10,5,5", "1e3", "100000000,00", "99999999,99x"],
+    ["0", "0,00", "-5", "abc", "1,234", "10,5,5", "1e3", "100000000,00", "99999999,99x",
+     "1.2345", "1.234.56", "12.345,678", "1.23.4"],
 )
 def test_valor_invalido(client, sessao, valor):
     r = post(client, valor=valor)
@@ -69,10 +71,29 @@ def test_valor_maximo_aceito(client, sessao):
         ("12", "12.00"),
         ("12,5", "12.50"),
         ("12.5", "12.50"),
+        ("1.234", "1234.00"),
+        ("1.000", "1000.00"),
+        ("12.345", "12345.00"),
+        ("1.005", "1005.00"),
+        ("1.234.567", "1234567.00"),
     ],
 )
 def test_interpretar_valor(texto, esperado):
     assert interpretar_valor(texto) == Decimal(esperado)
+
+
+@pytest.mark.parametrize("campo", ["nome", "fornecedor"])
+@pytest.mark.parametrize("texto", ["a\x00b", "a\x01b", "a\x7fb"])
+def test_caracteres_de_controle_recusados(client, sessao, campo, texto):
+    r = post(client, **{campo: texto})
+    assert r.status_code == 422
+    assert "caracteres inválidos" in r.text
+    assert sessao.scalars(select(Produto)).all() == []
+
+
+def test_valor_com_milhar_sem_virgula_grava_milhar(client, sessao):
+    assert post(client, valor="1.234").status_code == 303
+    assert sessao.scalars(select(Produto)).one().valor == Decimal("1234.00")
 
 
 def test_erro_preserva_valores_digitados(client):
@@ -81,6 +102,17 @@ def test_erro_preserva_valores_digitados(client):
     assert 'value="abc"' in r.text
     assert 'value="Forn"' in r.text
     assert "Valor inválido" in r.text
+
+
+def test_listagem_ordena_por_criado_em(client, sessao):
+    # horários explícitos; ids em ordem contrária à data provam que não é só o id
+    base = datetime(2026, 1, 1, tzinfo=timezone.utc)
+    for nome, dias in [("Meio", 1), ("Novo", 2), ("Antigo", 0)]:
+        sessao.add(Produto(nome=nome, valor=Decimal("1.00"), fornecedor="F",
+                           criado_em=base + timedelta(days=dias)))
+    sessao.flush()
+    html = client.get("/").text
+    assert html.index("Novo") < html.index("Meio") < html.index("Antigo")
 
 
 def test_listagem_do_mais_recente_para_o_mais_antigo(client):
