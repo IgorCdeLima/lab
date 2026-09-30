@@ -18,3 +18,8 @@ def database_url() -> str:
         port=int(porta),
         database=banco,
     ).render_as_string(hide_password=False)
+
+
+def uploads_dir() -> str:
+    """Pasta (volume) onde as imagens enviadas são salvas."""
+    return os.environ.get("UPLOADS_DIR", "/uploads")

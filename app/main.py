@@ -3,13 +3,13 @@ from decimal import Decimal
 from pathlib import Path
 from typing import Annotated
 
-from fastapi import Depends, FastAPI, Form, Request
-from fastapi.responses import HTMLResponse, JSONResponse, RedirectResponse
+from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
+from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app import db
+from app import db, imagens
 from app.models import Produto
 from app.validacao import validar_produto
 
@@ -21,6 +21,17 @@ async def lifespan(_: FastAPI):
 
 
 app = FastAPI(title="Cadastro de produtos", lifespan=lifespan)
+
+
+@app.middleware("http")
+async def limitar_upload(request: Request, call_next):
+    """Recusa cedo (413) requisições cujo Content-Length excede o limite da imagem + campos."""
+    tamanho = request.headers.get("content-length", "")
+    if request.method == "POST" and tamanho.isdigit() and int(tamanho) > imagens.TAMANHO_MAXIMO + 64 * 1024:
+        return JSONResponse(status_code=413, content={"erro": "Requisição grande demais."})
+    return await call_next(request)
+
+
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 
@@ -57,8 +68,18 @@ def cadastrar(
     nome: Annotated[str, Form()] = "",
     valor: Annotated[str, Form()] = "",
     fornecedor: Annotated[str, Form()] = "",
+    imagem: Annotated[UploadFile | None, File()] = None,
 ):
     dados, erros = validar_produto(nome, valor, fornecedor)
+    conteudo = b""
+    ext = None
+    if imagem is not None and imagem.filename:
+        # lê no máximo 1 byte além do limite: nunca carrega arquivo gigante na memória
+        conteudo = imagem.file.read(imagens.TAMANHO_MAXIMO + 1)
+        if conteudo:
+            ext, erro_img = imagens.validar_imagem(conteudo)
+            if erro_img:
+                erros["imagem"] = erro_img
     if erros:
         return _pagina(
             request,
@@ -67,9 +88,27 @@ def cadastrar(
             erros=erros,
             valores={"nome": nome, "valor": valor, "fornecedor": fornecedor},
         )
-    sessao.add(Produto(**dados))
-    sessao.commit()
+    arquivo = imagens.salvar(conteudo, ext) if ext else None
+    try:
+        sessao.add(Produto(**dados, imagem_arquivo=arquivo))
+        sessao.commit()
+    except Exception:
+        if arquivo:
+            imagens.remover(arquivo)
+        raise
     return RedirectResponse("/", status_code=303)
+
+
+@app.get("/uploads/{nome}")
+def imagem_do_produto(nome: str):
+    arquivo = imagens.caminho(nome)
+    if arquivo is None:
+        raise HTTPException(status_code=404)
+    return FileResponse(
+        arquivo,
+        media_type=imagens.TIPOS[nome.rsplit(".", 1)[1]],
+        headers={"X-Content-Type-Options": "nosniff"},
+    )
 
 
 @app.get("/health")

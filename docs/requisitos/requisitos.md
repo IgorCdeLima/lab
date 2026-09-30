@@ -38,6 +38,11 @@ Uma página única onde o usuário cadastra produtos e vê os produtos já cadas
 | RNF-04 | Uploads salvos em volume, com nome gerado pela aplicação (nunca o nome enviado pelo usuário) |
 | RNF-05 | Formulários protegidos contra envio malicioso (escape de HTML nas páginas, limite de tamanho no upload) |
 
+## Notas de implementacao (T-0003)
+
+- Tipo da imagem pelos bytes iniciais (JPEG `FFD8FF`, PNG, WebP `RIFF....WEBP`); SVG e recusado. A imagem nao e reprocessada.
+- Limite de 2 MB: leitura limitada a 2 MB + 1 byte e recusa previa (413) por `Content-Length` acima de 2 MB + 64 KB. Requisicao chunked sem `Content-Length` nao e barrada antes do parse (limite a tratar no proxy, se houver).
+
 ## Decisões
 
 - **Fornecedor é texto livre** em cada produto (decidido por Igor em 2026-09-28). Um cadastro próprio de fornecedores pode vir depois, se necessário.
