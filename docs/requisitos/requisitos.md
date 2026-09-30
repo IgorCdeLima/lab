@@ -1,8 +1,8 @@
 ---
 tipo: requisitos
 status: rascunho
-versao: 1
-atualizado: 2026-09-28
+versao: 2
+atualizado: 2026-09-30
 ---
 # Requisitos — cadastro de produtos
 
@@ -43,6 +43,63 @@ Uma página única onde o usuário cadastra produtos e vê os produtos já cadas
 - Tipo da imagem pelos bytes iniciais (JPEG `FFD8FF`, PNG, WebP `RIFF....WEBP`); SVG e recusado. A imagem nao e reprocessada.
 - Limite de 2 MB: leitura limitada a 2 MB + 1 byte, com erro 422 na pagina (campos preservados). Teto anti-DoS separado: `Content-Length` acima de 10 MB recebe 413; POST sem `Content-Length` (chunked) recebe 411.
 
+## Proposto pela T-0006 (aguarda aceite do humano)
+
+Origem: SEC-0002 a SEC-0005, observacoes do VER-0006/VER-0007 e ADR-0002/ADR-0003 (`proposta`). Enquanto o humano nao aceitar, valem as regras acima.
+
+### Requisitos nao funcionais novos
+
+| ID | Requisito (verificavel) | Origem | Cartao |
+|---|---|---|---|
+| RNF-06 | Toda dependencia Python (direta e indireta, runtime e dev) instalada com versao exata e hash sha256 (`pip install --require-hashes`); arquivos travados gerados por comando documentado | SEC-0003, ADR-0003 | T-0009 |
+| RNF-07 | O processo da aplicacao (imagem runtime) roda com usuario sem privilegio: `id -u` diferente de 0 no container `app` | SEC-0004 | T-0008 |
+| RNF-08 | Toda resposta HTTP da aplicacao (HTML, JSON, erro 4xx, arquivo de `/uploads`) leva `Content-Security-Policy` com `frame-ancestors 'none'`, `X-Frame-Options: DENY` e `X-Content-Type-Options: nosniff` | SEC-0005 | T-0007 |
+| RNF-09 | A imagem runtime nao tem pacote do sistema com correcao de seguranca disponivel na data do build (`apt list --upgradable` sem pacote de seguranca), e a varredura da imagem (alem do `pip-audit`) tem comando documentado; CVE sem correcao fica registrada com triagem | SEC-0002 | T-0008 |
+| RNF-10 | Os comandos documentados de `test`, `lint` e `audit` reconstroem a imagem antes de rodar (`run --build`), para nunca verificar codigo ou dependencias antigos | O1 (VER-0009/VER-0010) | T-0009 |
+
+### Regra da imagem (se o ADR-0002 for aceito)
+
+| Campo | Regra |
+|---|---|
+| Imagem | Opcional; JPEG, PNG ou WebP; ate 2 MB **enviados**; tipo pelos magic bytes **e** pela decodificacao completa (o formato decodificado tem de ser o mesmo); lado ate 10.000 px e area ate 50 megapixels (premissa); a aplicacao grava a imagem **regravada**, no mesmo formato, com a orientacao do EXIF aplicada e sem metadados; imagem animada vira o primeiro quadro |
+
+Mensagens (422, na pagina, campos preservados), alem das atuais de tamanho e tipo. Entre aspas esta o texto literal da interface, com acentos, como as mensagens que ja existem em `app/imagens.py`:
+
+- corrompida ou truncada: "A imagem está corrompida ou não pôde ser lida."
+- dimensoes acima do limite: "A imagem deve ter no máximo 10.000 px de lado e 50 megapixels."
+
+### Exemplos de entrada - imagem
+
+O Revisor testa estes casos. Nenhum pode gerar erro 500.
+
+| Entrada | Valido? | Resultado esperado |
+|---|---|---|
+| JPEG real 1200x800, ~300 KB | sim | 303; arquivo gravado abre como JPEG 1200x800 |
+| PNG real 8x8 com transparencia | sim | 303; gravado como PNG com canal alfa |
+| WebP real 64x64 | sim | 303; gravado como WebP |
+| JPEG com EXIF `Orientation=6` e GPS | sim | 303; gravado ja girado (altura > largura se o original era retrato) e **sem** EXIF |
+| PNG real com extensao `.jpg` no nome | sim | 303; gravado como `.png` (tipo pelo conteudo) |
+| JPEG valido com `<script>...</script>` anexado depois do fim | sim | 303; o arquivo gravado **nao** contem a string `<script>` |
+| Arquivo com exatamente 2 MB (imagem real) | sim | 303 |
+| Campo vazio ou arquivo de 0 byte | sim (sem imagem) | 303 sem imagem, como hoje |
+| `FFD8FF` + 1 KB de bytes aleatorios | nao | 422 "corrompida ou não pôde ser lida" |
+| PNG real cortado pela metade | nao | 422 "corrompida ou não pôde ser lida" |
+| PNG valido declarando 20.000 x 20.000 px (arquivo pequeno) | nao | 422 "no máximo 10.000 px...", sem decodificar os pixels (resposta rapida, memoria estavel) |
+| Cabecalho `RIFF....WEBP` com corpo de PNG | nao | 422 (formato decodificado diferente do detectado) |
+| GIF, SVG, PDF renomeado para `.jpg` | nao | 422 "A imagem deve ser JPEG, PNG ou WebP." (como hoje) |
+| Imagem real de 3 MB | nao | 422 "no máximo 2 MB" com os campos preservados (como hoje) |
+| Corpo acima de 10 MB / sem `Content-Length` | nao | 413 / 411 (teto anti-DoS, como hoje) |
+
+### Premissas (T-0006)
+
+- Uso local, sem exposicao publica (como nas questoes em aberto). Exposicao publica mudaria a avaliacao do ADR-0002.
+- Limite de dimensao: 10.000 px de lado e 50 megapixels (cobre camera de celular de 48 MP). Revisavel.
+- Qualidade da regravacao: JPEG e WebP com qualidade 90; PNG sem perda. Revisavel.
+- Perfil de cor ICC: mantido (nao identifica a pessoa e evita mudar as cores). Revisavel.
+- Imagens gravadas antes da mudanca nao sao reprocessadas.
+- A imagem `dev` (servicos `test`, `lint`, `audit`) continua como root: nao publica porta e so roda localmente (RNF-07 vale para a runtime).
+- A CSP permite `style-src 'unsafe-inline'` enquanto o CSS estiver dentro de `index.html`; tirar o CSS para arquivo fica para uma tarefa de interface.
+
 ## Decisões
 
 - **Fornecedor é texto livre** em cada produto (decidido por Igor em 2026-09-28). Um cadastro próprio de fornecedores pode vir depois, se necessário.
@@ -51,3 +108,6 @@ Uma página única onde o usuário cadastra produtos e vê os produtos já cadas
 
 - **Edição e exclusão** de produtos: fora do escopo inicial.
 - **Autenticação:** fora do escopo inicial (uso local).
+- (T-0006) **Metadados das fotos importam?** Se nao importarem e imagem quebrada na listagem for aceitavel, o ADR-0002 pode ser rejeitado em favor do status quo com risco aceito. Bloqueia so o cartao T-0010.
+- (T-0006) **Acima de 10 MB** a resposta continua JSON 413 (VER-0007). Quer uma pagina amigavel nesse caso? Nao bloqueia.
+- (T-0006) **Varredura da imagem automatizada** (servico do Compose) ou so comando documentado com o `osv-scanner` da maquina? A T-0008 assume o comando documentado. Nao bloqueia.
