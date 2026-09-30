@@ -20,6 +20,9 @@
     ],
     "docs/design/": [
       "designer"
+    ],
+    "docs/seguranca/": [
+      "seguranca"
     ]
   }
 }

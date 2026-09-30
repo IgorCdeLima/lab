@@ -24,6 +24,7 @@ Vários worktrees podem rodar ao mesmo tempo. Os volumes já são separados (o n
 | Dev | worktree `T-000N-...` | 8000 + N (T-0002 → 8002) | `APP_PORT=8002 docker compose up -d --build` |
 | Revisor | worktree da tarefa, projeto próprio | 8100 + N (T-0002 → 8102) | `APP_PORT=8102 docker compose -p t0002-rev up -d --build` |
 | Designer | worktree da tarefa, projeto proprio | 8200 + N (T-0002 -> 8202) | `APP_PORT=8202 docker compose -p t0002-des up -d --build` |
+| Seguranca | worktree da tarefa, projeto proprio | 8300 + N (T-0002 -> 8302) | `APP_PORT=8302 docker compose -p t0002-seg up -d --build` |
 
 No PowerShell: `$env:APP_PORT=8002; docker compose up -d --build`. Ao terminar, pare com `docker compose down` (com `-p` se usou) — **sem** `-v`; volumes de teste a remover vão para "Passos do humano" do cartão.
 
@@ -37,6 +38,7 @@ Configuração por variáveis de ambiente em `.env` (fora do Git). O modelo vers
 | `docs/modelos/` | Diagramas em Mermaid (contexto, domínio, ER) |
 | `docs/adr/` | Decisões de arquitetura do projeto |
 | `docs/design/` | Design por tarefa (`T-####/`: brief, conceitos, esqueleto SVG, prototipo HTML, entrega) e sistema de design (`sistema/`: tokens.css). So o Designer escreve; o Dev implementa a partir do prototipo |
+| `docs/seguranca/` | Analise de ameacas por tarefa (`T-####-ameacas.md`). So a Seguranca escreve |
 | `qualidade/` | `VER-`, `BUG-`, `SEC-` do projeto — só revisor, segurança e coordenador escrevem; `qualidade/ux/` (`UX-`) tambem o Designer |
 
 ## Padrões
