@@ -11,7 +11,7 @@ Ver `docs/adr/ADR-0001 Stack do projeto.md`: Python + FastAPI (páginas renderiz
 ## Como rodar
 
 - Subir: `docker compose up -d --build`
-- Testes: `docker compose run --rm app pytest`
+- Testes: `docker compose run --rm test`
 - Parar: `docker compose down` (**nunca** `down -v`, que apaga o banco)
 
 ### Portas por worktree
