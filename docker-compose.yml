@@ -53,6 +53,28 @@ services:
       db:
         condition: service_healthy
 
+  # Lint: ruff (config no pyproject.toml). Uso: docker compose run --rm lint
+  lint:
+    profiles: ["test"]
+    build:
+      context: .
+      target: dev
+    command: ruff check .
+    working_dir: /code
+    volumes:
+      - ./app:/code/app:ro
+      - ./tests:/code/tests:ro
+      - ./pyproject.toml:/code/pyproject.toml:ro
+
+  # Varredura de vulnerabilidades nas dependencias instaladas (precisa de internet).
+  # Uso: docker compose run --rm audit
+  audit:
+    profiles: ["test"]
+    build:
+      context: .
+      target: dev
+    command: pip-audit
+
 volumes:
   db_data:
   uploads:
