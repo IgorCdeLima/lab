@@ -34,6 +34,8 @@
       "Bash(*ferramentas\\papel*)",
       "Bash(papel)",
       "Bash(papel *)",
+      "Read(~/.config/01_ia/**)",
+      "Bash(*01_ia/admin*)",
       "PowerShell(*IA_PAPEL*)",
       "PowerShell(*papel.cmd*)",
       "PowerShell(*papel.py*)",
