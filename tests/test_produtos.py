@@ -50,7 +50,8 @@ def test_limite_120_caracteres(client, sessao, campo):
 @pytest.mark.parametrize(
     "valor",
     ["0", "0,00", "-5", "abc", "1,234", "10,5,5", "1e3", "100000000,00", "99999999,99x",
-     "1.2345", "1.234.56", "12.345,678", "1.23.4"],
+     "1.2345", "1.234.56", "12.345,678", "1.23.4",
+     "1" * 27, "1" * 30, "1" * 200],
 )
 def test_valor_invalido(client, sessao, valor):
     r = post(client, valor=valor)

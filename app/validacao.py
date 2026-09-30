@@ -20,7 +20,12 @@ def interpretar_valor(texto: str) -> Decimal | None:
         normal = texto
     else:
         return None
-    return Decimal(normal).quantize(Decimal("0.01"))
+    numero = Decimal(normal)
+    if numero > VALOR_MAXIMO:
+        # Acima do teto: devolve sem quantize (a precisão padrão de 28 dígitos estouraria
+        # com InvalidOperation); quem chama recusa por ser maior que o máximo.
+        return numero
+    return numero.quantize(Decimal("0.01"))
 
 
 def validar_produto(nome: str, valor: str, fornecedor: str):
