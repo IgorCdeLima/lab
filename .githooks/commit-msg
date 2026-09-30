@@ -1,3 +1,5 @@
 #!/bin/sh
 # Garante os trailers Agente/Tarefa/Modelo em commits de agentes.
-exec py -3 "D:/01_IA/ferramentas/git/verificar_commit.py" commit-msg "$1"
+# Raiz do ambiente: IA_RAIZ ou <raiz>/projetos/lab/.git -> <raiz> (também a partir de worktrees).
+RAIZ="${IA_RAIZ:-$(dirname "$(dirname "$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")")")}"
+exec py -3 "$RAIZ/ferramentas/git/verificar_commit.py" commit-msg "$1"
