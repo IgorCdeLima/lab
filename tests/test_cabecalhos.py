@@ -77,3 +77,38 @@ def test_health(client):
     r = client.get("/health")
     assert r.status_code == 200
     conferir(r)
+
+
+def test_500_tem_os_4_cabecalhos(client):
+    from fastapi.testclient import TestClient
+
+    from app.main import app
+
+    def quebra():
+        raise RuntimeError("falha de teste")
+
+    app.add_api_route("/_quebra", quebra)
+    try:
+        r = TestClient(app, raise_server_exceptions=False).get("/_quebra")
+    finally:
+        app.router.routes.pop()
+    assert r.status_code == 500
+    conferir(r)
+
+
+def test_start_sem_chave_headers():
+    import asyncio
+
+    from app.main import CabecalhosSeguranca
+
+    enviadas = []
+
+    async def app_asgi(scope, receive, send):
+        await send({"type": "http.response.start", "status": 204})
+
+    async def send(msg):
+        enviadas.append(msg)
+
+    asyncio.run(CabecalhosSeguranca(app_asgi)({"type": "http"}, None, send))
+    nomes = {k.decode() for k, _ in enviadas[0]["headers"]}
+    assert {n.lower() for n in CABECALHOS_SEGURANCA} == nomes
