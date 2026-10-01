@@ -97,4 +97,12 @@ Observacoes para a escolha:
 - C e escuro por padrao; uma variante clara sai dos mesmos tokens se o humano quiser.
 - E possivel misturar (ex.: estrutura de A com a lista em cartoes de B no celular).
 
-**Escolha do humano:** <!-- preenchida depois -->
+**Escolha do humano:** mistura (Igor, 2026-09-30, na conversa com o Designer; anotado pelo Designer a pedido): **estrutura do conceito A** (formulario fixo a esquerda, paleta neutra + azul-petroleo), mas os produtos **em carrossel de cartoes** em vez de tabela.
+
+Como o Designer interpreta o carrossel (decisoes do esqueleto):
+
+- Cartao com foto quadrada no topo, nome (ate 2 linhas), fornecedor e valor em destaque; "sem imagem" ocupa o mesmo quadro.
+- Rolagem horizontal nativa com `scroll-snap` (funciona sem JavaScript, com mouse, toque e teclado); botoes Anterior/Proximo so como melhoria com um script do proprio app (CSP `'self'`). Sem rotacao automatica.
+- O mais recente e o primeiro cartao. Desktop: 3 cartoes visiveis e a borda do 4o, para indicar que ha mais. Celular: 1 cartao e a borda do proximo.
+- Limite conhecido: com muitos produtos (dezenas) o carrossel fica longo para percorrer; "ver todos"/busca fica para outra tarefa.
+- Pergunta 2 (destaque do item novo) ainda sem resposta: o prototipo mostra o destaque como **opcional** (depende do redirect para `/#produto-<id>`).

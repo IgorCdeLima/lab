@@ -1,0 +1,86 @@
+/*
+ * Sistema de design do lab - tokens (T-0011, aprovado na direcao "A + carrossel").
+ * Fonte de verdade das cores, fontes, espacamentos e medidas da interface.
+ * Sem recurso de outra origem: so fontes do sistema (CSP default-src 'self').
+ * Contraste conferido (WCAG 2.1): ver docs/design/T-0011/05-entrega.md.
+ */
+:root {
+  /* ---------- Cores: base ---------- */
+  --cor-fundo: #F4F6F8;            /* fundo da pagina */
+  --cor-superficie: #FFFFFF;       /* cartoes, formulario, cabecalho */
+  --cor-superficie-2: #EEF1F4;     /* quadro "sem imagem", cabecalho de grupo */
+  --cor-borda: #D5DBE2;            /* borda decorativa de cartao (nao precisa de 3:1) */
+  --cor-borda-campo: #6E7B88;      /* borda de campo e botao secundario: 4,3:1 sobre branco */
+
+  /* ---------- Cores: texto ---------- */
+  --cor-texto: #1B2430;            /* 15,7:1 sobre branco */
+  --cor-texto-2: #4A5563;          /* secundario: 7,6:1 sobre branco, 7,0:1 sobre fundo */
+  --cor-texto-3: #5B6675;          /* dica/legenda: 5,8:1 sobre branco, 5,4:1 sobre fundo */
+
+  /* ---------- Cores: acento (azul-petroleo) ---------- */
+  --cor-acento: #0F5F73;           /* botao primario, foco, valor: 7,2:1 com branco */
+  --cor-acento-forte: #0B4A5A;     /* hover/pressionado do botao primario */
+  --cor-acento-suave: #E6F2F4;     /* fundo do cartao destacado (novo) */
+  --cor-sobre-acento: #FFFFFF;
+
+  /* ---------- Cores: estados ---------- */
+  --cor-erro: #B3261E;             /* texto e borda de erro: 6,5:1 sobre branco */
+  --cor-erro-suave: #FDECEC;       /* fundo do resumo de erros: texto de erro 5,8:1 */
+  --cor-sucesso: #1E6B3A;          /* reservado (mensagem de sucesso, se aprovada) */
+  --cor-sucesso-suave: #E7F4EC;
+
+  /* ---------- Tipografia ---------- */
+  --fonte-base: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
+  --fonte-numeros: var(--fonte-base);   /* usar com font-variant-numeric: tabular-nums */
+
+  --texto-xs: 0.75rem;    /* 12 px - selo, legenda */
+  --texto-sm: 0.875rem;   /* 14 px - dica, fornecedor, erro */
+  --texto-md: 1rem;       /* 16 px - corpo e campos (16 evita zoom no iOS) */
+  --texto-lg: 1.125rem;   /* 18 px - valor no cartao, h2 */
+  --texto-xl: 1.375rem;   /* 22 px - h1 */
+
+  --peso-normal: 400;
+  --peso-medio: 600;
+  --peso-forte: 700;
+  --altura-linha: 1.45;
+  --altura-linha-justa: 1.25;
+
+  /* ---------- Espacamento (escala de 4 px) ---------- */
+  --esp-1: 0.25rem;  /* 4 */
+  --esp-2: 0.5rem;   /* 8 */
+  --esp-3: 0.75rem;  /* 12 */
+  --esp-4: 1rem;     /* 16 - margem lateral no celular, gap do carrossel */
+  --esp-5: 1.5rem;   /* 24 - padding dos paineis */
+  --esp-6: 2rem;     /* 32 - margem lateral e gap das colunas no desktop */
+  --esp-7: 3rem;     /* 48 */
+
+  /* ---------- Forma ---------- */
+  --raio-sm: 6px;    /* campos, botoes, foto */
+  --raio-md: 10px;   /* paineis e cartoes */
+  --raio-pilula: 999px;
+  --borda-fina: 1px;
+  --borda-grossa: 2px;     /* campo com erro, cartao destacado */
+
+  /* ---------- Foco ---------- */
+  --foco-cor: var(--cor-acento);
+  --foco-largura: 3px;
+  --foco-afastamento: 2px;
+
+  /* ---------- Sombra ---------- */
+  --sombra-1: 0 1px 2px rgba(27, 36, 48, 0.06), 0 1px 3px rgba(27, 36, 48, 0.08);
+
+  /* ---------- Medidas de layout ---------- */
+  --largura-max: 75rem;          /* 1200 px */
+  --largura-max-pilha: 40rem;    /* 640 px (tablet) */
+  --coluna-form: 21.25rem;       /* 340 px */
+  --altura-controle: 2.75rem;    /* 44 px no desktop */
+  --altura-controle-toque: 3rem; /* 48 px no celular */
+  --cartao-min: 12.25rem;        /* 196 px */
+  --cartao-max: 15rem;           /* 240 px */
+
+  /* ---------- Pontos de quebra (referencia; CSS nao aceita var() em @media) ---------- */
+  /* celular: < 720px | tablet: 720px a 959px | desktop: >= 960px */
+
+  /* ---------- Movimento ---------- */
+  --duracao-curta: 120ms;
+}
