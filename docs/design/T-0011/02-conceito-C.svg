@@ -1,0 +1,136 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <title>Conceito C - Livro-caixa</title>
+  <rect width="1600" height="1000" fill="#0B0E11"/>
+  <text x="40" y="44" font-size="22" font-weight="700" fill="#E8EDF1">Conceito C — Livro-caixa</text>
+  <text x="40" y="70" font-size="14" fill="#9AA7B2">Coluna única escura e de alto contraste. Ficha com rótulos ao lado dos campos; lista como livro de registros, valores em fonte monoespaçada. Verde-menta sobre grafite.</text>
+
+  <!-- ===== DESKTOP ===== -->
+  <g transform="translate(40,96)">
+    <rect width="1140" height="864" rx="10" fill="#14181C" stroke="#2A323A"/>
+    <!-- cabecalho -->
+    <text x="190" y="64" font-family="ui-monospace, 'Cascadia Mono', 'DejaVu Sans Mono', Consolas, monospace" font-size="13" fill="#5EE0B0" letter-spacing="2">LAB / PRODUTOS</text>
+    <text x="190" y="100" font-size="30" font-weight="800" fill="#E8EDF1">Cadastro de produtos</text>
+
+    <!-- ficha -->
+    <rect x="190" y="124" width="760" height="320" rx="4" fill="#1C2228" stroke="#2F3841"/>
+    <rect x="190" y="124" width="760" height="40" rx="4" fill="#232B33"/>
+    <text x="212" y="149" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="12" fill="#9AA7B2" letter-spacing="1.5">NOVA ENTRADA</text>
+    <text x="928" y="149" font-size="12" fill="#9AA7B2" text-anchor="end">Imagem é opcional; o resto é obrigatório</text>
+
+    <!-- linha nome -->
+    <text x="330" y="200" font-size="14" font-weight="600" fill="#C9D3DB" text-anchor="end">Nome</text>
+    <rect x="350" y="178" width="576" height="38" rx="3" fill="#0F1317" stroke="#5EE0B0" stroke-width="2"/>
+    <rect x="346" y="174" width="584" height="46" rx="5" fill="none" stroke="#5EE0B0" stroke-opacity=".3" stroke-width="3"/>
+    <text x="362" y="202" font-size="15" fill="#E8EDF1">Caixa organizadora de polipropileno com tampa e travas laterais, 56 litros</text>
+
+    <!-- linha valor -->
+    <text x="330" y="252" font-size="14" font-weight="600" fill="#C9D3DB" text-anchor="end">Valor</text>
+    <rect x="350" y="230" width="220" height="38" rx="3" fill="#0F1317" stroke="#5B6875"/>
+    <text x="362" y="254" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="15" fill="#9AA7B2">R$</text>
+    <text x="556" y="254" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="15" fill="#E8EDF1" text-anchor="end">0,00</text>
+    <text x="586" y="248" font-size="13" font-weight="600" fill="#FF8A80">▲ O valor deve ser maior que zero.</text>
+    <text x="586" y="264" font-size="12" fill="#9AA7B2">formato 1234,56</text>
+    <rect x="350" y="230" width="220" height="38" rx="3" fill="none" stroke="#FF8A80" stroke-width="2"/>
+
+    <!-- linha fornecedor -->
+    <text x="330" y="304" font-size="14" font-weight="600" fill="#C9D3DB" text-anchor="end">Fornecedor</text>
+    <rect x="350" y="282" width="576" height="38" rx="3" fill="#0F1317" stroke="#5B6875"/>
+    <text x="362" y="306" font-size="15" fill="#E8EDF1">Plásticos Ipiranga Ltda.</text>
+
+    <!-- linha imagem -->
+    <text x="330" y="356" font-size="14" font-weight="600" fill="#C9D3DB" text-anchor="end">Imagem</text>
+    <rect x="350" y="334" width="150" height="38" rx="3" fill="#232B33" stroke="#5B6875"/>
+    <text x="425" y="358" font-size="13" font-weight="600" fill="#E8EDF1" text-anchor="middle">Escolher arquivo</text>
+    <text x="514" y="358" font-size="13" fill="#9AA7B2">nenhum arquivo · JPEG, PNG ou WebP até 2 MB</text>
+
+
+    <!-- botao -->
+    <rect x="350" y="388" width="160" height="40" rx="3" fill="#5EE0B0"/>
+    <text x="430" y="413" font-size="15" font-weight="800" fill="#0B0E11" text-anchor="middle">Cadastrar ↵</text>
+
+    <!-- livro -->
+    <text x="190" y="472" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="13" fill="#9AA7B2" letter-spacing="1.5">REGISTROS</text>
+    <text x="950" y="472" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="13" fill="#9AA7B2" text-anchor="end">4 itens · mais recentes primeiro</text>
+    <line x1="190" y1="484" x2="950" y2="484" stroke="#5EE0B0" stroke-width="2"/>
+
+    <g font-size="15">
+      <!-- 004 novo -->
+      <rect x="190" y="485" width="760" height="64" fill="#16302A"/>
+      <text x="206" y="522" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="13" fill="#5EE0B0">004</text>
+      <rect x="250" y="497" width="40" height="40" rx="3" fill="#6B4A2E"/>
+      <text x="306" y="514" font-weight="600" fill="#E8EDF1">Café torrado em grãos 1 kg</text>
+      <text x="306" y="534" font-size="13" fill="#9AA7B2">Torrefação Serra Azul  ·  <tspan fill="#5EE0B0" font-weight="700">acabou de entrar</tspan></text>
+      <text x="934" y="522" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" fill="#E8EDF1" text-anchor="end">R$          54,90</text>
+      <line x1="190" y1="549" x2="950" y2="549" stroke="#2A323A"/>
+      <!-- 003 -->
+      <text x="206" y="586" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="13" fill="#7D8A96">003</text>
+      <rect x="250" y="561" width="40" height="40" rx="3" fill="none" stroke="#5B6875" stroke-dasharray="3 3"/><text x="270" y="586" font-size="14" fill="#9AA7B2" text-anchor="middle">∅</text>
+      <text x="306" y="578" font-weight="600" fill="#E8EDF1">Caixa organizadora de polipropileno com tampa e travas…</text>
+      <text x="306" y="598" font-size="13" fill="#9AA7B2">Plásticos Ipiranga Ltda.  ·  sem imagem</text>
+      <text x="934" y="586" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" fill="#E8EDF1" text-anchor="end">R$          89,90</text>
+      <line x1="190" y1="613" x2="950" y2="613" stroke="#2A323A"/>
+      <!-- 002 -->
+      <text x="206" y="650" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="13" fill="#7D8A96">002</text>
+      <rect x="250" y="625" width="40" height="40" rx="3" fill="#A9B3BC"/>
+      <text x="306" y="642" font-weight="600" fill="#E8EDF1">Geladeira frost free inox 480 L</text>
+      <text x="306" y="662" font-size="13" fill="#9AA7B2">Eletro Distribuidora Sul</text>
+      <text x="934" y="650" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" fill="#E8EDF1" text-anchor="end">R$       4.799,00</text>
+      <line x1="190" y1="677" x2="950" y2="677" stroke="#2A323A"/>
+      <!-- 001 -->
+      <text x="206" y="714" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="13" fill="#7D8A96">001</text>
+      <rect x="250" y="689" width="40" height="40" rx="3" fill="#2F3B4A"/><rect x="258" y="700" width="24" height="14" rx="1" fill="#7FA7C2"/>
+      <text x="306" y="706" font-weight="600" fill="#E8EDF1">Lote de notebooks corporativos</text>
+      <text x="306" y="726" font-size="13" fill="#9AA7B2">Tech Atacado</text>
+      <text x="934" y="714" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" fill="#E8EDF1" text-anchor="end">R$  99.999.999,99</text>
+      <line x1="190" y1="741" x2="950" y2="741" stroke="#5EE0B0" stroke-width="2"/>
+    </g>
+
+    <text x="190" y="790" font-size="13" fill="#9AA7B2">• Coluna estreita e centrada: leitura de cima para baixo, sem distração; rótulos alinhados à direita formam uma "ficha".</text>
+    <text x="190" y="812" font-size="13" fill="#9AA7B2">• Valores monoespaçados alinham vírgula com vírgula; o número da linha é só visual (ordem da lista, não ID).</text>
+    <text x="190" y="834" font-size="13" fill="#9AA7B2">• Tema escuro por padrão; variante clara possível com os mesmos tokens (prefers-color-scheme).</text>
+  </g>
+
+  <!-- ===== CELULAR ===== -->
+  <g transform="translate(1220,96)">
+    <rect width="340" height="720" rx="28" fill="#2A323A"/>
+    <rect x="10" y="10" width="320" height="700" rx="20" fill="#14181C"/>
+    <text x="28" y="44" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="11" fill="#5EE0B0" letter-spacing="1.5">LAB / PRODUTOS</text>
+    <text x="28" y="70" font-size="20" font-weight="800" fill="#E8EDF1">Cadastro de produtos</text>
+    <rect x="22" y="86" width="296" height="330" rx="4" fill="#1C2228" stroke="#2F3841"/>
+    <text x="38" y="114" font-size="12" font-weight="600" fill="#C9D3DB">Nome</text>
+    <rect x="38" y="120" width="264" height="44" rx="3" fill="#0F1317" stroke="#5B6875"/>
+    <text x="38" y="184" font-size="12" font-weight="600" fill="#C9D3DB">Valor</text>
+    <rect x="38" y="190" width="264" height="44" rx="3" fill="#0F1317" stroke="#FF8A80" stroke-width="2"/>
+    <text x="38" y="252" font-size="11.5" font-weight="600" fill="#FF8A80">▲ O valor deve ser maior que zero.</text>
+    <text x="38" y="278" font-size="12" font-weight="600" fill="#C9D3DB">Fornecedor</text>
+    <rect x="38" y="284" width="264" height="44" rx="3" fill="#0F1317" stroke="#5B6875"/>
+    <rect x="38" y="340" width="120" height="44" rx="3" fill="#232B33" stroke="#5B6875"/><text x="98" y="367" font-size="12" font-weight="600" fill="#E8EDF1" text-anchor="middle">Imagem…</text>
+    <rect x="168" y="340" width="134" height="44" rx="3" fill="#5EE0B0"/><text x="235" y="367" font-size="14" font-weight="800" fill="#0B0E11" text-anchor="middle">Cadastrar</text>
+
+    <text x="28" y="448" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="11" fill="#9AA7B2" letter-spacing="1.5">REGISTROS · 4</text>
+    <line x1="22" y1="458" x2="318" y2="458" stroke="#5EE0B0" stroke-width="2"/>
+    <rect x="22" y="459" width="296" height="62" fill="#16302A"/>
+    <rect x="30" y="470" width="40" height="40" rx="3" fill="#6B4A2E"/>
+    <text x="80" y="486" font-size="13" font-weight="600" fill="#E8EDF1">Café torrado em grãos 1 kg</text>
+    <text x="80" y="504" font-size="11.5" fill="#9AA7B2">Torrefação Serra Azul</text>
+    <text x="310" y="504" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="12.5" fill="#E8EDF1" text-anchor="end">54,90</text>
+    <line x1="22" y1="521" x2="318" y2="521" stroke="#2A323A"/>
+    <rect x="30" y="532" width="40" height="40" rx="3" fill="none" stroke="#5B6875" stroke-dasharray="3 3"/>
+    <text x="80" y="548" font-size="13" font-weight="600" fill="#E8EDF1">Caixa organizadora de poli…</text>
+    <text x="80" y="566" font-size="11.5" fill="#9AA7B2">Plásticos Ipiranga Ltda.</text>
+    <text x="310" y="566" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="12.5" fill="#E8EDF1" text-anchor="end">89,90</text>
+    <line x1="22" y1="583" x2="318" y2="583" stroke="#2A323A"/>
+    <rect x="30" y="594" width="40" height="40" rx="3" fill="#A9B3BC"/>
+    <text x="80" y="610" font-size="13" font-weight="600" fill="#E8EDF1">Geladeira frost free inox…</text>
+    <text x="80" y="628" font-size="11.5" fill="#9AA7B2">Eletro Distribuidora Sul</text>
+    <text x="310" y="628" font-family="ui-monospace, 'DejaVu Sans Mono', monospace" font-size="12.5" fill="#E8EDF1" text-anchor="end">4.799,00</text>
+    <line x1="22" y1="645" x2="318" y2="645" stroke="#2A323A"/>
+    <text x="170" y="750" font-size="12" fill="#9AA7B2" text-anchor="middle">Celular (360 px): rótulos acima dos campos</text>
+  </g>
+
+  <g transform="translate(1220,880)" font-size="11" fill="#C9D3DB">
+    <rect width="28" height="28" rx="4" fill="#5EE0B0"/><rect x="36" width="28" height="28" rx="4" fill="#14181C" stroke="#5B6875"/><rect x="72" width="28" height="28" rx="4" fill="#E8EDF1"/><rect x="108" width="28" height="28" rx="4" fill="#16302A" stroke="#5B6875"/><rect x="144" width="28" height="28" rx="4" fill="#FF8A80"/>
+    <text y="46">menta #5EE0B0 · grafite #14181C · erro #FF8A80</text>
+    <text y="64">system-ui + monoespaçada do sistema (ui-monospace)</text>
+  </g>
+</svg>
