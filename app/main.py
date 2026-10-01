@@ -134,18 +134,22 @@ def cadastrar(
     dados, erros = validar_produto(nome, valor, fornecedor)
     conteudo = b""
     ext = None
+    status_erro = 422
     if imagem is not None and imagem.filename:
         # lê no máximo 1 byte além do limite: nunca carrega arquivo gigante na memória
         conteudo = imagem.file.read(imagens.TAMANHO_MAXIMO + 1)
         if conteudo:
-            ext, erro_img = imagens.validar_imagem(conteudo)
+            try:
+                ext, conteudo, erro_img = imagens.processar_imagem(conteudo)
+            except imagens.ServidorOcupado:
+                erro_img, status_erro = imagens.ERRO_OCUPADO, 503
             if erro_img:
                 erros["imagem"] = erro_img
     if erros:
         return _pagina(
             request,
             sessao,
-            status_code=422,
+            status_code=status_erro,
             erros=erros,
             valores={"nome": nome, "valor": valor, "fornecedor": fornecedor},
         )
