@@ -100,6 +100,11 @@ O Revisor testa estes casos. Nenhum pode gerar erro 500.
 - A imagem `dev` (servicos `test`, `lint`, `audit`) continua como root: nao publica porta e so roda localmente (RNF-07 vale para a runtime).
 - A CSP permite `style-src 'unsafe-inline'` enquanto o CSS estiver dentro de `index.html`; tirar o CSS para arquivo fica para uma tarefa de interface.
 
+## Notas de implementacao (T-0007)
+
+- RNF-08 (definicao na tabela "Proposto pela T-0006"; valores exatos): toda resposta envia CSP (`default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` e `Referrer-Policy: strict-origin-when-cross-origin`, por um middleware ASGI (`CabecalhosSeguranca` em `app/main.py`) que envolve o app inteiro (`AppComCabecalhos`), por fora do `ServerErrorMiddleware`, entao cobre tambem 411/413 e o 500 (SEC-0006).
+- `'unsafe-inline'` so em `style-src`, porque o CSS esta num `<style>` do template; remover quando o CSS for para arquivo.
+
 ## Decisões
 
 - **Fornecedor é texto livre** em cada produto (decidido por Igor em 2026-09-28). Um cadastro próprio de fornecedores pode vir depois, se necessário.

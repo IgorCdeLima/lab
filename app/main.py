@@ -8,6 +8,7 @@ from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, Redirect
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
 from sqlalchemy.orm import Session
+from starlette.datastructures import MutableHeaders
 
 from app import db, imagens
 from app.models import Produto
@@ -20,7 +21,58 @@ async def lifespan(_: FastAPI):
     yield
 
 
-app = FastAPI(title="Cadastro de produtos", lifespan=lifespan)
+CABECALHOS_SEGURANCA = {
+    "Content-Security-Policy": (
+        "default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; "
+        "form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
+    ),
+    "X-Frame-Options": "DENY",
+    "X-Content-Type-Options": "nosniff",
+    "Referrer-Policy": "strict-origin-when-cross-origin",
+}
+
+
+class CabecalhosSeguranca:
+    """Middleware ASGI puro: define (substitui, nunca duplica) os cabeçalhos em toda resposta.
+
+    Envolve o app inteiro (ver `AppComCabecalhos`): cobre 411/413 e o 500 do ServerErrorMiddleware.
+    'unsafe-inline' só em style-src: o CSS está num <style> do template (RNF-08, T-0007).
+    """
+
+    def __init__(self, app):
+        self.app = app
+
+    async def __call__(self, scope, receive, send):
+        if scope["type"] != "http":
+            return await self.app(scope, receive, send)
+
+        async def enviar(msg):
+            if msg["type"] == "http.response.start":
+                msg.setdefault("headers", [])  # a chave é opcional no ASGI
+                cab = MutableHeaders(scope=msg)
+                for nome, valor in CABECALHOS_SEGURANCA.items():
+                    cab[nome] = valor
+            await send(msg)
+
+        await self.app(scope, receive, enviar)
+
+
+class AppComCabecalhos(FastAPI):
+    """FastAPI cujo ponto de entrada ASGI é envolvido por `CabecalhosSeguranca`.
+
+    `add_middleware` não basta: o `ServerErrorMiddleware` do Starlette fica por fora de todo
+    middleware do usuário, e a resposta 500 dele sairia sem os cabeçalhos (SEC-0006).
+    """
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._com_cabecalhos = CabecalhosSeguranca(super().__call__)
+
+    async def __call__(self, scope, receive, send):
+        await self._com_cabecalhos(scope, receive, send)
+
+
+app = AppComCabecalhos(title="Cadastro de produtos", lifespan=lifespan)
 
 
 LIMITE_REQUISICAO = 10 * 1024 * 1024  # teto anti-DoS, bem acima dos 2 MB da imagem
@@ -116,7 +168,6 @@ def imagem_do_produto(nome: str):
     return FileResponse(
         arquivo,
         media_type=imagens.TIPOS[nome.rsplit(".", 1)[1]],
-        headers={"X-Content-Type-Options": "nosniff"},
     )
 
 
