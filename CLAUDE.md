@@ -39,6 +39,8 @@ Configuração por variáveis de ambiente em `.env` (fora do Git). O modelo vers
 | `docs/requisitos/` | Requisitos e critérios de aceite |
 | `docs/modelos/` | Diagramas em Mermaid (contexto, domínio, ER) |
 | `docs/adr/` | Decisões de arquitetura do projeto |
+| `docs/avaliacoes/` | Avaliacoes de tecnologia com matriz de pesos |
+| `docs/retrospectivas/` | Retrospectivas de tarefas |
 | `docs/design/` | Design por tarefa (`T-####/`: brief, conceitos, esqueleto SVG, prototipo HTML, entrega) e sistema de design (`sistema/`: tokens.css). So o Designer escreve; o Dev implementa a partir do prototipo |
 | `docs/seguranca/` | Analise de ameacas por tarefa (`T-####-ameacas.md`). So a Seguranca escreve |
 | `qualidade/` | `VER-`, `BUG-`, `SEC-` do projeto — só revisor, segurança e coordenador escrevem; `qualidade/ux/` (`UX-`) tambem o Designer |
