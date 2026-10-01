@@ -5,6 +5,13 @@ FROM python:3.13.15-slim AS base
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1
 
+# Pacotes do sistema: a tag 3.13.15-slim (a mais nova em 2026-10-01) ainda traz openssl
+# e libpcre2 com correcao pendente (SEC-0002). O upgrade aplica as correcoes de seguranca
+# do Debian; as listas do apt sao removidas para nao engordar a imagem.
+RUN apt-get update \
+    && apt-get upgrade -y --no-install-recommends \
+    && rm -rf /var/lib/apt/lists/*
+
 WORKDIR /code
 COPY requirements.txt .
 RUN pip install --no-cache-dir --require-hashes -r requirements.txt
@@ -28,6 +35,14 @@ WORKDIR /work
 # Estagio final (padrao): imagem de execucao. So leva app/ e requirements.txt:
 # nada de tests/, requirements-dev.txt, pytest, ruff, pip-audit nem pip-tools.
 FROM base AS runtime
+
+# Usuario sem privilegio (SEC-0004, RNF-07). /uploads e criada com a posse dele: volume
+# NOVO herda essa posse; volume ANTIGO (arquivos de root) precisa do ajuste do README.
+RUN groupadd --system --gid 10001 app \
+    && useradd --system --uid 10001 --gid app --no-create-home --shell /usr/sbin/nologin app \
+    && mkdir /uploads \
+    && chown app:app /uploads
+USER 10001:10001
 
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
