@@ -61,9 +61,9 @@ sequenceDiagram
     end
 ```
 
-## Em que ordem a imagem e validada e o que chega ao volume? (proposta ADR-0002, T-0010)
+## Em que ordem a imagem e validada e o que chega ao volume? (ADR-0002, T-0010)
 
-So vale se o ADR-0002 for aceito. Responde: qual verificacao recusa cada caso dos "Exemplos de entrada - imagem" (requisitos) e em que ponto os pixels sao decodificados. O teto anti-DoS (411/413) continua antes de tudo, no middleware.
+ADR-0002 aceito em 2026-09-30; implementado na T-0010. Responde: qual verificacao recusa cada caso dos "Exemplos de entrada - imagem" (requisitos) e em que ponto os pixels sao decodificados. O teto anti-DoS (411/413) continua antes de tudo, no middleware.
 
 ```mermaid
 sequenceDiagram
@@ -77,6 +77,8 @@ sequenceDiagram
         A-->>U: 422 "no máximo 2 MB" (campos preservados)
     else magic bytes nao sao JPEG/PNG/WebP
         A-->>U: 422 "deve ser JPEG, PNG ou WebP"
+    else sem vaga de decodificacao ate 30 s (max. 2 simultaneas)
+        A-->>U: 503 "Servidor ocupado, tente de novo." (campos preservados)
     else cabecalho aceito
         A->>P: abrir so o cabecalho (formats JPEG, PNG, WEBP)
         alt formato decodificado diferente do detectado, ou nao abre

@@ -21,7 +21,7 @@ O humano adiou a decisao de decodificar/reprocessar (Pillow, dependencia nova) p
 
 ## Decisao
 
-**Proposta:** decodificar a imagem enviada com o Pillow e gravar um arquivo **regravado pela aplicacao**, no mesmo formato detectado:
+**Decisao aceita pelo humano em 2026-09-30:** decodificar a imagem enviada com o Pillow e gravar um arquivo **regravado pela aplicacao**, no mesmo formato detectado:
 
 1. Manter a checagem atual de tamanho (2 MB) e de magic bytes, que e barata e da a mensagem de tipo.
 2. Abrir com o Pillow restrito a JPEG, PNG e WebP; conferir que o formato decodificado e o mesmo dos magic bytes.
@@ -47,8 +47,7 @@ Implementacao: cartao T-0010.
   - O Pillow decodifica dado nao confiavel em C. Mitigacoes: `formats=` restrito, limite de pixels, versao travada com hash e auditada, container sem root (T-0008).
   - Atualizacao rapida do Pillow passa a ser rotina (o `pip-audit` acusa; o Dev regenera o arquivo travado).
   - Imagens ja gravadas antes da mudanca continuam como estao (sem migracao retroativa; premissa).
-  - Regra de validacao da imagem em `docs/requisitos/requisitos.md` muda (ver secao "Proposto pela T-0006").
-- **Se o humano rejeitar:** vale a alternativa A com o risco aceito e registrado; o cartao T-0010 e cancelado e as observacoes do VER-0006/VER-0007 ficam encerradas como "risco aceito".
+  - Regra de validacao da imagem em `docs/requisitos/requisitos.md` muda (ver secao "Definido pela T-0006").
 
 ## Relacionadas
 
