@@ -1,0 +1,140 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1000" viewBox="0 0 1600 1000" font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif">
+  <title>Conceito A - Bancada</title>
+  <rect width="1600" height="1000" fill="#E3E7EC"/>
+  <text x="40" y="44" font-size="22" font-weight="700" fill="#1B2430">Conceito A — Bancada</text>
+  <text x="40" y="70" font-size="14" fill="#4A5563">Duas colunas: formulário fixo à esquerda, tabela densa à direita. Neutro claro + azul-petróleo. Feito para cadastrar vários itens em sequência.</text>
+
+  <!-- ===== DESKTOP ===== -->
+  <g transform="translate(40,96)">
+    <rect width="1140" height="864" rx="10" fill="#F4F6F8" stroke="#C5CDD6"/>
+    <rect width="1140" height="64" rx="10" fill="#FFFFFF"/>
+    <rect y="54" width="1140" height="10" fill="#FFFFFF"/>
+    <line x1="0" y1="64" x2="1140" y2="64" stroke="#D5DBE2"/>
+    <rect x="32" y="20" width="24" height="24" rx="6" fill="#0F5F73"/>
+    <path d="M38 32h12M44 26v12" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/>
+    <text x="68" y="39" font-size="18" font-weight="700" fill="#1B2430">Cadastro de produtos</text>
+    <text x="1108" y="39" font-size="13" fill="#5B6675" text-anchor="end">4 produtos</text>
+
+    <!-- coluna do formulario -->
+    <rect x="32" y="96" width="340" height="560" rx="10" fill="#FFFFFF" stroke="#D5DBE2"/>
+    <text x="56" y="132" font-size="16" font-weight="700" fill="#1B2430">Novo produto</text>
+    <text x="56" y="152" font-size="12" fill="#5B6675">Todos os campos são obrigatórios, exceto a imagem.</text>
+
+    <text x="56" y="186" font-size="13" font-weight="600" fill="#1B2430">Nome</text>
+    <rect x="52" y="190" width="300" height="48" rx="9" fill="none" stroke="#0F5F73" stroke-opacity=".35" stroke-width="3"/>
+    <rect x="56" y="194" width="292" height="40" rx="6" fill="#fff" stroke="#0F5F73" stroke-width="2"/>
+    <text x="68" y="219" font-size="14" fill="#1B2430">Café torrado em grãos 1 kg</text>
+    <rect x="252" y="205" width="1.5" height="18" fill="#1B2430"/>
+
+    <text x="56" y="262" font-size="13" font-weight="600" fill="#1B2430">Valor</text>
+    <rect x="56" y="270" width="292" height="40" rx="6" fill="#fff" stroke="#8A96A3"/>
+    <text x="68" y="295" font-size="14" fill="#5B6675">R$</text>
+    <text x="94" y="295" font-size="14" fill="#1B2430">54,90</text>
+    <text x="56" y="328" font-size="12" fill="#5B6675">Ex.: 1234,56</text>
+
+    <text x="56" y="358" font-size="13" font-weight="600" fill="#1B2430">Fornecedor</text>
+    <rect x="56" y="366" width="292" height="40" rx="6" fill="#fff" stroke="#B3261E" stroke-width="2"/>
+    <text x="56" y="426" font-size="12" font-weight="600" fill="#B3261E">⚠ Informe o fornecedor.</text>
+
+    <text x="56" y="458" font-size="13" font-weight="600" fill="#1B2430">Imagem <tspan font-weight="400" fill="#5B6675">(opcional)</tspan></text>
+    <rect x="56" y="466" width="292" height="72" rx="6" fill="#F4F6F8" stroke="#8A96A3" stroke-dasharray="5 4"/>
+    <text x="202" y="497" font-size="13" font-weight="600" fill="#0F5F73" text-anchor="middle">Escolher arquivo</text>
+    <text x="202" y="517" font-size="12" fill="#5B6675" text-anchor="middle">JPEG, PNG ou WebP, até 2 MB</text>
+
+    <rect x="56" y="566" width="292" height="44" rx="6" fill="#0F5F73"/>
+    <text x="202" y="594" font-size="15" font-weight="700" fill="#fff" text-anchor="middle">Cadastrar</text>
+    <text x="202" y="636" font-size="11" fill="#5B6675" text-anchor="middle">Enter também cadastra</text>
+
+    <!-- coluna da lista -->
+    <rect x="404" y="96" width="704" height="560" rx="10" fill="#FFFFFF" stroke="#D5DBE2"/>
+    <text x="428" y="132" font-size="16" font-weight="700" fill="#1B2430">Produtos</text>
+    <text x="1084" y="132" font-size="12" fill="#5B6675" text-anchor="end">mais recentes primeiro</text>
+    <rect x="405" y="148" width="702" height="34" fill="#F4F6F8"/>
+    <g font-size="12" font-weight="700" fill="#4A5563">
+      <text x="428" y="170">IMAGEM</text><text x="500" y="170">NOME</text><text x="790" y="170">FORNECEDOR</text><text x="1084" y="170" text-anchor="end">VALOR</text>
+    </g>
+
+    <rect x="405" y="182" width="702" height="72" fill="#E6F2F4"/>
+    <rect x="405" y="182" width="4" height="72" fill="#0F5F73"/>
+    <rect x="428" y="194" width="48" height="48" rx="6" fill="#6B4A2E"/><circle cx="446" cy="214" r="7" fill="#3E2A19"/><circle cx="460" cy="226" r="6" fill="#3E2A19"/>
+    <text x="500" y="214" font-size="14" font-weight="600" fill="#1B2430">Café torrado em grãos 1 kg</text>
+    <rect x="500" y="224" width="40" height="18" rx="9" fill="#0F5F73"/><text x="520" y="237" font-size="11" font-weight="700" fill="#fff" text-anchor="middle">novo</text>
+    <text x="790" y="222" font-size="14" fill="#33404F">Torrefação Serra Azul</text>
+    <text x="1084" y="222" font-size="14" font-weight="600" fill="#1B2430" text-anchor="end">R$ 54,90</text>
+
+    <line x1="405" y1="254" x2="1107" y2="254" stroke="#E3E7EC"/>
+    <rect x="428" y="266" width="48" height="48" rx="6" fill="#E3E7EC"/><text x="452" y="288" font-size="9" fill="#4A5563" text-anchor="middle">sem</text><text x="452" y="300" font-size="9" fill="#4A5563" text-anchor="middle">imagem</text>
+    <text x="500" y="286" font-size="14" font-weight="600" fill="#1B2430">Caixa organizadora de polipropileno</text>
+    <text x="500" y="304" font-size="14" font-weight="600" fill="#1B2430">com tampa e travas laterais, 56 l…</text>
+    <text x="790" y="294" font-size="14" fill="#33404F">Plásticos Ipiranga Ltda.</text>
+    <text x="1084" y="294" font-size="14" font-weight="600" fill="#1B2430" text-anchor="end">R$ 89,90</text>
+
+    <line x1="405" y1="326" x2="1107" y2="326" stroke="#E3E7EC"/>
+    <rect x="428" y="338" width="48" height="48" rx="6" fill="#C9D1D9"/><rect x="440" y="345" width="24" height="34" rx="3" fill="#8A96A3"/><line x1="440" y1="357" x2="464" y2="357" stroke="#C9D1D9" stroke-width="2"/>
+    <text x="500" y="366" font-size="14" font-weight="600" fill="#1B2430">Geladeira frost free inox 480 L</text>
+    <text x="790" y="366" font-size="14" fill="#33404F">Eletro Distribuidora Sul</text>
+    <text x="1084" y="366" font-size="14" font-weight="600" fill="#1B2430" text-anchor="end">R$ 4.799,00</text>
+
+    <line x1="405" y1="398" x2="1107" y2="398" stroke="#E3E7EC"/>
+    <rect x="428" y="410" width="48" height="48" rx="6" fill="#2F3B4A"/><rect x="438" y="422" width="28" height="18" rx="2" fill="#7FA7C2"/><rect x="434" y="442" width="36" height="4" rx="1" fill="#8A96A3"/>
+    <text x="500" y="438" font-size="14" font-weight="600" fill="#1B2430">Lote de notebooks corporativos</text>
+    <text x="790" y="438" font-size="14" fill="#33404F">Tech Atacado</text>
+    <text x="1084" y="438" font-size="14" font-weight="600" fill="#1B2430" text-anchor="end">R$ 99.999.999,99</text>
+    <line x1="405" y1="470" x2="1107" y2="470" stroke="#E3E7EC"/>
+
+    <g font-size="13">
+      <text x="32" y="700" font-weight="700" fill="#0F5F73">Por que assim</text>
+      <text x="32" y="724" fill="#33404F">• O formulário fica sempre visível: cadastra, confere a linha nova destacada, cadastra o próximo.</text>
+      <text x="32" y="746" fill="#33404F">• Tabela densa com valor alinhado à direita: fácil comparar e achar o que entrou.</text>
+      <text x="32" y="768" fill="#33404F">• Erro em vermelho com ícone + texto e borda grossa no campo; foco com anel azul-petróleo.</text>
+      <text x="32" y="790" fill="#33404F">• Sucesso: a linha nova vem em destaque com o selo "novo" (o redirect leva a âncora do produto).</text>
+      <text x="32" y="812" fill="#33404F">• Celular: as colunas viram uma pilha (formulário, depois lista em linhas compactas).</text>
+    </g>
+  </g>
+
+  <!-- ===== CELULAR ===== -->
+  <g transform="translate(1220,96)">
+    <rect width="340" height="720" rx="28" fill="#1B2430"/>
+    <rect x="10" y="10" width="320" height="700" rx="20" fill="#F4F6F8"/>
+    <rect x="10" y="10" width="320" height="56" rx="20" fill="#fff"/><rect x="10" y="46" width="320" height="20" fill="#fff"/>
+    <line x1="10" y1="66" x2="330" y2="66" stroke="#D5DBE2"/>
+    <rect x="26" y="28" width="20" height="20" rx="5" fill="#0F5F73"/>
+    <text x="56" y="44" font-size="15" font-weight="700" fill="#1B2430">Cadastro de produtos</text>
+
+    <rect x="22" y="80" width="296" height="352" rx="10" fill="#fff" stroke="#D5DBE2"/>
+    <text x="38" y="108" font-size="14" font-weight="700" fill="#1B2430">Novo produto</text>
+    <text x="38" y="134" font-size="12" font-weight="600" fill="#1B2430">Nome</text>
+    <rect x="38" y="140" width="264" height="44" rx="6" fill="#fff" stroke="#8A96A3"/>
+    <text x="38" y="204" font-size="12" font-weight="600" fill="#1B2430">Valor</text>
+    <rect x="38" y="210" width="264" height="44" rx="6" fill="#fff" stroke="#8A96A3"/><text x="50" y="237" font-size="13" fill="#5B6675">R$</text>
+    <text x="38" y="274" font-size="12" font-weight="600" fill="#1B2430">Fornecedor</text>
+    <rect x="38" y="280" width="264" height="44" rx="6" fill="#fff" stroke="#8A96A3"/>
+    <rect x="38" y="336" width="264" height="36" rx="6" fill="#F4F6F8" stroke="#8A96A3" stroke-dasharray="5 4"/>
+    <text x="170" y="359" font-size="12" font-weight="600" fill="#0F5F73" text-anchor="middle">Imagem (opcional)</text>
+    <rect x="38" y="382" width="264" height="44" rx="6" fill="#0F5F73"/><text x="170" y="409" font-size="14" font-weight="700" fill="#fff" text-anchor="middle">Cadastrar</text>
+
+    <text x="26" y="464" font-size="14" font-weight="700" fill="#1B2430">Produtos</text>
+    <rect x="22" y="476" width="296" height="64" rx="8" fill="#E6F2F4"/>
+    <rect x="32" y="484" width="48" height="48" rx="6" fill="#6B4A2E"/>
+    <text x="92" y="502" font-size="13" font-weight="600" fill="#1B2430">Café torrado em grãos 1 kg</text>
+    <text x="92" y="522" font-size="12" fill="#4A5563">Torrefação Serra Azul</text>
+    <text x="306" y="522" font-size="13" font-weight="700" fill="#1B2430" text-anchor="end">R$ 54,90</text>
+    <rect x="22" y="548" width="296" height="64" rx="8" fill="#fff" stroke="#E3E7EC"/>
+    <rect x="32" y="556" width="48" height="48" rx="6" fill="#E3E7EC"/>
+    <text x="92" y="574" font-size="13" font-weight="600" fill="#1B2430">Caixa organizadora de polipr…</text>
+    <text x="92" y="594" font-size="12" fill="#4A5563">Plásticos Ipiranga Ltda.</text>
+    <text x="306" y="594" font-size="13" font-weight="700" fill="#1B2430" text-anchor="end">R$ 89,90</text>
+    <rect x="22" y="620" width="296" height="64" rx="8" fill="#fff" stroke="#E3E7EC"/>
+    <rect x="32" y="628" width="48" height="48" rx="6" fill="#C9D1D9"/>
+    <text x="92" y="646" font-size="13" font-weight="600" fill="#1B2430">Geladeira frost free inox 480 L</text>
+    <text x="92" y="666" font-size="12" fill="#4A5563">Eletro Distribuidora Sul</text>
+    <text x="306" y="666" font-size="13" font-weight="700" fill="#1B2430" text-anchor="end">R$ 4.799,00</text>
+    <text x="170" y="750" font-size="12" fill="#4A5563" text-anchor="middle">Celular (360 px): pilha</text>
+  </g>
+
+  <g transform="translate(1220,880)" font-size="11" fill="#33404F">
+    <rect width="28" height="28" rx="4" fill="#0F5F73"/><rect x="36" width="28" height="28" rx="4" fill="#1B2430"/><rect x="72" width="28" height="28" rx="4" fill="#F4F6F8" stroke="#C5CDD6"/><rect x="108" width="28" height="28" rx="4" fill="#E6F2F4" stroke="#C5CDD6"/><rect x="144" width="28" height="28" rx="4" fill="#B3261E"/>
+    <text y="46">petróleo #0F5F73 · tinta #1B2430 · erro #B3261E</text>
+    <text y="64">Fonte do sistema (system-ui)</text>
+  </g>
+</svg>
