@@ -66,14 +66,39 @@ services:
       - ./tests:/code/tests:ro
       - ./pyproject.toml:/code/pyproject.toml:ro
 
-  # Varredura de vulnerabilidades nas dependencias instaladas (precisa de internet).
-  # Uso: docker compose run --rm audit
+  # Varredura de vulnerabilidades nos arquivos travados e no que foi instalado (precisa de internet).
+  # Uso: docker compose run --build --rm audit
+  # O 1o comando audita os arquivos travados (exige hash); o 2o, o ambiente instalado na imagem dev.
   audit:
     profiles: ["test"]
     build:
       context: .
       target: dev
-    command: pip-audit
+    command:
+      - sh
+      - -c
+      - >-
+        pip-audit --require-hashes -r requirements.txt -r requirements-dev.txt &&
+        pip-audit
+
+  # Gera requirements.txt e requirements-dev.txt (versao exata + hash) a partir dos .in.
+  # Roda no container porque o hash depende da plataforma. Precisa de internet.
+  # Uso: docker compose run --build --rm lock
+  lock:
+    profiles: ["lock"]
+    build:
+      context: .
+      target: lock
+    working_dir: /work
+    volumes:
+      - .:/work
+    command:
+      - sh
+      - -c
+      - >-
+        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet requirements.in &&
+        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet requirements-dev.in &&
+        chown --reference=requirements.in requirements.txt requirements-dev.txt
 
 volumes:
   db_data:

@@ -1,0 +1,8 @@
+# Dependencias DIRETAS de desenvolvimento (test, lint, audit). Edite aqui, nao em requirements-dev.txt.
+# As versoes ja travadas em requirements.txt valem tambem aqui (-c).
+# Regenerar o travado com hashes: docker compose run --rm lock
+-c requirements.txt
+pytest==9.1.1
+httpx2==2.13.1
+ruff==0.16.9
+pip-audit==2.10.1
