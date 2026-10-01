@@ -11,9 +11,10 @@ Ver `docs/adr/ADR-0001 Stack do projeto.md`: Python + FastAPI (páginas renderiz
 ## Como rodar
 
 - Subir: `docker compose up -d --build`
-- Testes: `docker compose run --rm test`
-- Lint (ruff): `docker compose run --rm lint`
-- Vulnerabilidades (pip-audit): `docker compose run --build --rm audit` (le as dependencias instaladas na imagem dev; `--build` evita auditar imagem desatualizada, observacao O1)
+- Testes: `docker compose run --build --rm test`
+- Lint (ruff): `docker compose run --build --rm lint`
+- Vulnerabilidades (pip-audit, arquivos travados e imagem dev): `docker compose run --build --rm audit`
+- Travar dependencias (hash): editar `requirements.in`/`requirements-dev.in` e rodar `docker compose run --build --rm lock`; commitar os `.in` e os dois `requirements*.txt` (nunca editar os `.txt` a mao). O `--build` e necessario porque `run` nao reconstroi imagem existente (O1).
 - Parar: `docker compose down` (**nunca** `down -v`, que apaga o banco)
 
 ### Portas por worktree

@@ -45,7 +45,7 @@ Uma página única onde o usuário cadastra produtos e vê os produtos já cadas
 
 ## Proposto pela T-0006 (aguarda aceite do humano)
 
-Origem: SEC-0002 a SEC-0005, observacoes do VER-0006/VER-0007 e ADR-0002/ADR-0003 (`proposta`). Enquanto o humano nao aceitar, valem as regras acima.
+Origem: SEC-0002 a SEC-0005, observacoes do VER-0006/VER-0007 e ADR-0002/ADR-0003 (aceitos pelo humano em 2026-09-30).
 
 ### Requisitos nao funcionais novos
 

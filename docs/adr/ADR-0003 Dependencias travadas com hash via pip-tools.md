@@ -17,7 +17,7 @@ Avaliacao completa: `docs/avaliacoes/travamento-de-dependencias.md` (pip-tools 8
 
 ## Decisao
 
-**Proposta:**
+**Decisao (aceita em 2026-09-30):**
 
 1. Dependencias diretas declaradas em `requirements.in` (runtime) e `requirements-dev.in` (dev, com `-c requirements.txt` no topo, fluxo em camadas do pip-tools).
 2. `requirements.txt` e `requirements-dev.txt` passam a ser **gerados** por `pip-compile --generate-hashes` e versionados; ninguem os edita a mao.
