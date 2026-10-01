@@ -45,7 +45,7 @@ main.pagina  (grid: 340px | 1fr no desktop; pilha abaixo de 960px)
   section.painel.produtos (aria-labelledby -> h2 "Produtos", data-carrossel)
     .produtos__topo: h2 + p.painel__sub "Mais recentes primeiro" | div.carrossel-nav[hidden]
     div.carrossel#carrossel (role=region, aria-label, tabindex=0)
-      ul.carrossel__lista > li.cartao#produto-{id} ...
+      ul.carrossel__lista > li.cartao ...
     -- ou, sem produtos: div.vazio
 ```
 
@@ -63,9 +63,8 @@ main.pagina  (grid: 340px | 1fr no desktop; pilha abaixo de 960px)
 | Botao primario | `.botao-primario` | largura total da coluna; hover `--cor-acento-forte`; texto "Cadastrar" |
 | Carrossel | `.carrossel` + `.carrossel__lista` | rolagem horizontal nativa com `scroll-snap-type: x mandatory`; cartoes de 196 a 240 px (3 visiveis + borda do 4o) no desktop, 45% no tablet, 78% no celular; **sem rotacao automatica**; barra de rolagem visivel |
 | Navegacao do carrossel | `.carrossel-nav` + `.botao-circulo` | renderizada com `hidden`; o `carrossel.js` mostra quando ha mais cartoes do que cabem; botoes desativados nas pontas; escondida no celular (arrasta com o dedo); `aria-label` "Produtos anteriores" / "Próximos produtos", `aria-controls` |
-| Cartao de produto | `li.cartao#produto-{id}` | foto 1:1 (`object-fit: cover`), `h3.cartao__nome` (2 linhas, `line-clamp`; texto completo no DOM), fornecedor (1 linha com reticencias + `title` com o texto todo), valor (`tabular-nums`, nunca quebra, cor acento) |
+| Cartao de produto | `li.cartao` | foto 1:1 (`object-fit: cover`), `h3.cartao__nome` (2 linhas, `line-clamp`; texto completo no DOM), fornecedor (1 linha com reticencias + `title` com o texto todo), valor (`tabular-nums`, nunca quebra, cor acento) |
 | Sem imagem | `.cartao__foto--vazia` | mesmo quadro 1:1, borda tracejada, icone + "sem imagem" |
-| Selo / destaque do novo | `.selo`, `.cartao:target` | ver secao 5 (opcional) |
 | Estado vazio | `.vazio` | icone + "Nenhum produto cadastrado." (texto atual) + "Preencha o formulário para cadastrar o primeiro." |
 
 ## 4. Estados e o que o template faz em cada um
@@ -78,16 +77,13 @@ main.pagina  (grid: 340px | 1fr no desktop; pilha abaixo de 960px)
 | Qualquer erro com o campo de imagem sem erro | Estado 3 | no `.campo-arquivo`, dica extra "Se você tinha escolhido uma imagem, escolha de novo." (o navegador nao devolve o arquivo apos o 422) |
 | Erro de imagem | Estado 4 | `.campo-arquivo--erro`, `aria-invalid` no input, `msg-erro` + dica "Escolha outro arquivo, ou cadastre sem imagem. JPEG, PNG ou WebP, até 2 MB." |
 | Todas as mensagens | "Todas as mensagens" | texto literal de `app/validacao.py` e `app/imagens.py` (+ 2 da T-0010); **nao mudar** |
-| Sucesso | Estado 1 (destaque) | hoje: redirect 303 para `/`, o produto aparece primeiro no carrossel. Com o opcional da secao 5: destaque |
+| Sucesso | Estado 1 | redirect 303 para `/` (como hoje); o produto novo entra como **primeiro cartao** do carrossel, **sem destaque** nem mensagem (decisao do humano, secao 5) |
 
-Textos novos de interface (so apresentacao, sem regra): "Novo produto", "Todos os campos são obrigatórios, exceto a imagem.", "Ex.: 1234,56", "Mais recentes primeiro", "Corrija os campos marcados para cadastrar.", "Se você tinha escolhido uma imagem, escolha de novo.", "Escolha outro arquivo, ou cadastre sem imagem.", "Preencha o formulário para cadastrar o primeiro.", "sem imagem", "novo", contagem "N produtos".
+Textos novos de interface (so apresentacao, sem regra): "Novo produto", "Todos os campos são obrigatórios, exceto a imagem.", "Ex.: 1234,56", "Mais recentes primeiro", "Corrija os campos marcados para cadastrar.", "Se você tinha escolhido uma imagem, escolha de novo.", "Escolha outro arquivo, ou cadastre sem imagem.", "Preencha o formulário para cadastrar o primeiro.", "sem imagem", contagem "N produtos".
 
-## 5. Opcional (pergunta 2 ao humano): destaque do produto recem-cadastrado
+## 5. Produto recem-cadastrado: sem destaque
 
-- Servidor: o redirect 303 do `POST /produtos` vai para `/#produto-{id}` em vez de `/`.
-- Template: cada cartao com `id="produto-{{ p.id }}"` e um `<span class="selo">novo</span>` (escondido por padrao).
-- CSS: `.cartao:target` ganha borda grossa acento, fundo `--cor-acento-suave` e o selo aparece. O navegador rola o carrossel ate o cartao sozinho. Sem JavaScript.
-- Se o humano nao quiser: nao mudar o redirect; o CSS de `:target` pode ficar (nao faz nada). A classe `.cartao--novo` existe so para o prototipo.
+Decisao do humano (2026-09-30): nao destacar o produto novo. Ele so entra no carrossel como primeiro cartao (lista do mais recente para o mais antigo, como hoje). Nada muda no servidor: o redirect 303 continua para `/`. Nao usar selo, `:target`, ancora nem mensagem de sucesso.
 
 ## 6. Responsivo
 
@@ -109,7 +105,6 @@ Sem rolagem horizontal da pagina em 320 px (so o carrossel rola na horizontal).
 | `--cor-texto-2` / superficie e fundo | 7,6 / 7,0:1 | 4,5 |
 | `--cor-texto-3` / superficie e fundo | 5,8 / 5,4:1 | 4,5 |
 | branco / `--cor-acento` (botao) | 7,2:1 | 4,5 |
-| `--cor-acento` / `--cor-acento-suave` (valor no cartao novo) | 6,3:1 | 4,5 |
 | `--cor-erro` / superficie | 6,5:1 | 4,5 |
 | `--cor-erro` / `--cor-erro-suave` (resumo) | 5,7:1 | 4,5 |
 | `--cor-texto-3` / `--cor-superficie-2` ("sem imagem") | 5,1:1 | 4,5 |
@@ -132,7 +127,7 @@ Sem rolagem horizontal da pagina em 320 px (so o carrossel rola na horizontal).
 
 ## 9. Proposta de cartao de implementacao (o Coordenador cria)
 
-**Titulo:** Implementar a tela de cadastro com o design da T-0011. `papel: dev`, `interface: sim`, `seguranca: sim` (CSS/JS em arquivo, rota `/static`, mudanca de redirect). Depois da T-0007 (ja na `main`) e, de preferencia, depois da T-0010 (mesmo template, mensagens novas).
+**Titulo:** Implementar a tela de cadastro com o design da T-0011. `papel: dev`, `interface: sim`, `seguranca: sim` (CSS/JS em arquivo, rota `/static`). Depois da T-0007 (ja na `main`) e, de preferencia, depois da T-0010 (mesmo template, mensagens novas).
 
 Criterios de aceite verificaveis:
 
@@ -145,6 +140,6 @@ Criterios de aceite verificaveis:
 - [ ] Produto sem imagem, nome com 120 caracteres, fornecedor com 120 caracteres e valor `R$ 99.999.999,99` nao quebram o cartao.
 - [ ] Estado vazio com "Nenhum produto cadastrado." (teste atual continua passando).
 - [ ] Contagem "1 produto" / "N produtos" no cabecalho.
-- [ ] (Se o humano aprovar a secao 5) redirect para `/#produto-{id}` e o cartao novo destacado; teste do `Location` do 303.
-- [ ] Testes automatizados para: elementos de acessibilidade do erro (`aria-invalid`, `aria-describedby`), dica de reenvio, contagem, `id` do cartao, ausencia de `<style>` no HTML, `/static/*.css` servido com os cabecalhos de seguranca.
+- [ ] Apos cadastrar, o produto novo e o primeiro cartao do carrossel, sem destaque; redirect continua 303 para `/`.
+- [ ] Testes automatizados para: elementos de acessibilidade do erro (`aria-invalid`, `aria-describedby`), dica de reenvio, contagem, ordem do carrossel (mais recente primeiro), ausencia de `<style>` no HTML, `/static/*.css` servido com os cabecalhos de seguranca.
 - [ ] Revisao visual do Designer (porta 8200 + N) antes do Revisor fechar.

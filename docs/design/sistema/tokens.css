@@ -20,7 +20,7 @@
   /* ---------- Cores: acento (azul-petroleo) ---------- */
   --cor-acento: #0F5F73;           /* botao primario, foco, valor: 7,2:1 com branco */
   --cor-acento-forte: #0B4A5A;     /* hover/pressionado do botao primario */
-  --cor-acento-suave: #E6F2F4;     /* fundo do cartao destacado (novo) */
+  --cor-acento-suave: #E6F2F4;     /* reservado (fundo suave de acento); sem uso na T-0011 */
   --cor-sobre-acento: #FFFFFF;
 
   /* ---------- Cores: estados ---------- */
@@ -33,7 +33,7 @@
   --fonte-base: system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "Helvetica Neue", Arial, sans-serif;
   --fonte-numeros: var(--fonte-base);   /* usar com font-variant-numeric: tabular-nums */
 
-  --texto-xs: 0.75rem;    /* 12 px - selo, legenda */
+  --texto-xs: 0.75rem;    /* 12 px - legenda */
   --texto-sm: 0.875rem;   /* 14 px - dica, fornecedor, erro */
   --texto-md: 1rem;       /* 16 px - corpo e campos (16 evita zoom no iOS) */
   --texto-lg: 1.125rem;   /* 18 px - valor no cartao, h2 */

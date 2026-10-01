@@ -86,9 +86,8 @@
 
     <!-- cartoes -->
     <g transform="translate(428,184)">
-      <rect width="196" height="300" rx="10" fill="#E6F2F4" stroke="#0F5F73" stroke-width="2"/>
+      <rect width="196" height="300" rx="10" class="bloco"/>
       <rect x="10" y="10" width="176" height="176" rx="6" class="foto"/>
-      <rect x="16" y="16" width="46" height="18" rx="9" class="acento"/>
       <rect x="10" y="200" width="160" height="12" class="forte"/><rect x="10" y="218" width="110" height="12" class="forte"/>
       <rect x="10" y="240" width="120" height="10" class="linha"/>
       <rect x="10" y="264" width="90" height="16" class="acento"/>
@@ -119,7 +118,7 @@
     <g transform="translate(404,600)">
       <text class="comp">cartao-produto (li &gt; article)</text>
       <text y="20" class="rot">1. foto 1:1, object-fit: cover, alt="Imagem de {nome}"</text>
-      <text y="38" class="rot">2. selo "novo" + borda acento: só em :target (opcional, pergunta 2)</text>
+      <text y="38" class="rot">2. produto novo entra como 1º cartão, sem destaque</text>
       <text y="56" class="rot">3. h3 nome: até 2 linhas (line-clamp), texto completo no DOM</text>
       <text y="74" class="rot">4. fornecedor: 1 linha com reticências</text>
       <text y="92" class="rot">5. valor: maior peso, tabular-nums, nunca quebra</text>
@@ -154,7 +153,7 @@
     <rect x="24" y="530" width="100" height="14" class="forte"/>
     <text x="134" y="542" class="nota">sem botões ‹ › : arrasta com o dedo</text>
     <g transform="translate(16,556)">
-      <rect width="250" height="330" rx="10" fill="#E6F2F4" stroke="#0F5F73" stroke-width="2"/>
+      <rect width="250" height="330" rx="10" class="bloco"/>
       <rect x="10" y="10" width="230" height="230" rx="6" class="foto"/>
       <rect x="10" y="252" width="200" height="12" class="forte"/>
       <rect x="10" y="276" width="140" height="10" class="linha"/>

@@ -180,14 +180,6 @@ body {
   font-size: var(--texto-lg); font-weight: var(--peso-forte); color: var(--cor-acento);
   font-family: var(--fonte-numeros); font-variant-numeric: tabular-nums; white-space: nowrap;
 }
-.selo {
-  display: none; position: absolute; top: calc(var(--esp-3) + var(--esp-2)); left: calc(var(--esp-3) + var(--esp-2));
-  padding: 0.125rem var(--esp-2); border-radius: var(--raio-pilula);
-  background: var(--cor-acento); color: var(--cor-sobre-acento); font-size: var(--texto-xs); font-weight: var(--peso-forte);
-}
-/* Destaque do produto recem-cadastrado (opcional: redirect para /#produto-<id>) */
-.cartao:target, .cartao--novo { border: var(--borda-grossa) solid var(--cor-acento); background: var(--cor-acento-suave); }
-.cartao:target .selo, .cartao--novo .selo { display: inline-block; }
 
 .vazio {
   margin-top: var(--esp-4); padding: var(--esp-7) var(--esp-5); text-align: center;
@@ -241,7 +233,7 @@ body {
 <!-- PROTOTIPO: navegacao entre estados -->
 <nav class="proto-barra" aria-label="Estados do prototipo">
   <strong>Protótipo T-0011</strong>
-  <a href="#estado-lista">1. Lista com produtos (+ destaque do novo)</a>
+  <a href="#estado-lista">1. Lista com produtos</a>
   <a href="#estado-vazio">2. Lista vazia</a>
   <a href="#estado-erros">3. Erros nos campos</a>
   <a href="#estado-imagem">4. Erro de imagem</a>
@@ -264,10 +256,10 @@ body {
 </svg>
 
 <!-- =================================================================== -->
-<!-- ESTADO 1: lista com produtos; produto recem-cadastrado em destaque    -->
+<!-- ESTADO 1: lista com produtos                                      -->
 <!-- =================================================================== -->
 <section class="proto-quadro" id="estado-lista" aria-label="Estado 1">
-  <p class="proto-rotulo"><strong>Estado 1</strong> — lista com 6 produtos (com e sem imagem, nome longo, fornecedor longo, valor máximo). O primeiro aparece em destaque como se a URL fosse <code>/#produto-12</code> (opcional, pergunta 2). Desktop: role o carrossel com o mouse, o teclado (Tab até a lista, setas) ou os botões ‹ ›.</p>
+  <p class="proto-rotulo"><strong>Estado 1</strong> — lista com 6 produtos (com e sem imagem, nome longo, fornecedor longo, valor máximo). Depois de cadastrar, o produto novo entra como primeiro cartão, sem destaque (decisão do humano). Desktop: role o carrossel com o mouse, o teclado (Tab até a lista, setas) ou os botões ‹ ›.</p>
 
   <header class="cabecalho">
     <div class="cabecalho__conteudo">
@@ -322,44 +314,38 @@ body {
       </div>
       <div class="carrossel" id="carrossel-1" role="region" aria-label="Lista de produtos, role para o lado" tabindex="0">
         <ul class="carrossel__lista">
-          <li class="cartao cartao--novo" id="produto-12">
+          <li class="cartao">
             <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Café torrado em grãos 1 kg" preserveAspectRatio="xMidYMid slice"><use href="#f-cafe"/></svg></div>
-            <span class="selo">novo</span>
             <h3 class="cartao__nome">Café torrado em grãos 1 kg</h3>
             <p class="cartao__fornecedor">Torrefação Serra Azul</p>
             <p class="cartao__valor">R$ 54,90</p>
           </li>
-          <li class="cartao" id="produto-11">
+          <li class="cartao">
             <div class="cartao__foto cartao__foto--vazia"><svg aria-hidden="true"><use href="#i-sem-imagem"/></svg><span>sem imagem</span></div>
-            <span class="selo">novo</span>
             <h3 class="cartao__nome">Caixa organizadora de polipropileno com tampa e travas laterais, 56 litros, transparente</h3>
             <p class="cartao__fornecedor" title="Plásticos Ipiranga Ltda.">Plásticos Ipiranga Ltda.</p>
             <p class="cartao__valor">R$ 89,90</p>
           </li>
-          <li class="cartao" id="produto-10">
+          <li class="cartao">
             <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Geladeira frost free inox 480 L" preserveAspectRatio="xMidYMid slice"><use href="#f-geladeira"/></svg></div>
-            <span class="selo">novo</span>
             <h3 class="cartao__nome">Geladeira frost free inox 480 L</h3>
             <p class="cartao__fornecedor">Eletro Distribuidora Sul</p>
             <p class="cartao__valor">R$ 4.799,00</p>
           </li>
-          <li class="cartao" id="produto-9">
+          <li class="cartao">
             <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Lote de notebooks corporativos" preserveAspectRatio="xMidYMid slice"><use href="#f-notebook"/></svg></div>
-            <span class="selo">novo</span>
             <h3 class="cartao__nome">Lote de notebooks corporativos</h3>
             <p class="cartao__fornecedor">Tech Atacado</p>
             <p class="cartao__valor">R$ 99.999.999,99</p>
           </li>
-          <li class="cartao" id="produto-8">
+          <li class="cartao">
             <div class="cartao__foto cartao__foto--vazia"><svg aria-hidden="true"><use href="#i-sem-imagem"/></svg><span>sem imagem</span></div>
-            <span class="selo">novo</span>
             <h3 class="cartao__nome">Detergente neutro 500 ml</h3>
             <p class="cartao__fornecedor" title="Comercial Atacadista de Utilidades Domésticas Irmãos Ferreira Ltda.">Comercial Atacadista de Utilidades Domésticas Irmãos Ferreira Ltda.</p>
             <p class="cartao__valor">R$ 2,49</p>
           </li>
-          <li class="cartao" id="produto-7">
+          <li class="cartao">
             <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Cadeira de escritório ergonômica" preserveAspectRatio="xMidYMid slice"><use href="#f-cadeira"/></svg></div>
-            <span class="selo">novo</span>
             <h3 class="cartao__nome">Cadeira de escritório ergonômica</h3>
             <p class="cartao__fornecedor">Móveis Ponto Sul</p>
             <p class="cartao__valor">R$ 1.249,90</p>
@@ -470,7 +456,6 @@ body {
         <ul class="carrossel__lista">
           <li class="cartao">
             <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Café torrado em grãos 1 kg" preserveAspectRatio="xMidYMid slice"><use href="#f-cafe"/></svg></div>
-            <span class="selo">novo</span>
             <h3 class="cartao__nome">Café torrado em grãos 1 kg</h3>
             <p class="cartao__fornecedor">Torrefação Serra Azul</p>
             <p class="cartao__valor">R$ 54,90</p>

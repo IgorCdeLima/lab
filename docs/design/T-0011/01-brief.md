@@ -105,4 +105,4 @@ Como o Designer interpreta o carrossel (decisoes do esqueleto):
 - Rolagem horizontal nativa com `scroll-snap` (funciona sem JavaScript, com mouse, toque e teclado); botoes Anterior/Proximo so como melhoria com um script do proprio app (CSP `'self'`). Sem rotacao automatica.
 - O mais recente e o primeiro cartao. Desktop: 3 cartoes visiveis e a borda do 4o, para indicar que ha mais. Celular: 1 cartao e a borda do proximo.
 - Limite conhecido: com muitos produtos (dezenas) o carrossel fica longo para percorrer; "ver todos"/busca fica para outra tarefa.
-- Pergunta 2 (destaque do item novo) ainda sem resposta: o prototipo mostra o destaque como **opcional** (depende do redirect para `/#produto-<id>`).
+- Pergunta 2 respondida (Igor, 2026-09-30): **sem destaque** do produto novo; ele so entra no carrossel como primeiro cartao. Sem mensagem de sucesso e sem mudanca no servidor.
