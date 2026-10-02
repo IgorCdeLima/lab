@@ -77,8 +77,6 @@ sequenceDiagram
         A-->>U: 422 "no máximo 2 MB" (campos preservados)
     else magic bytes nao sao JPEG/PNG/WebP
         A-->>U: 422 "deve ser JPEG, PNG ou WebP"
-    else sem vaga de decodificacao ate 30 s (max. 2 simultaneas)
-        A-->>U: 503 "Servidor ocupado, tente de novo." (campos preservados)
     else cabecalho aceito
         A->>P: abrir so o cabecalho (formats JPEG, PNG, WEBP)
         alt formato decodificado diferente do detectado, ou nao abre
@@ -86,7 +84,9 @@ sequenceDiagram
             A-->>U: 422 "corrompida ou não pôde ser lida"
         else dimensoes acima do limite (antes de decodificar pixels)
             A-->>U: 422 "no máximo 10.000 px ... 50 megapixels"
-        else dimensoes ok
+        else orcamento de pixels (50 MP no total) ocupado por mais de 30 s
+            A-->>U: 503 "Servidor ocupado, tente de novo." (campos preservados)
+        else dimensoes ok e pixels reservados
             A->>P: decodificar todos os pixels
             alt truncada ou corrompida
                 P-->>A: erro

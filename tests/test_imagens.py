@@ -469,13 +469,11 @@ def test_codigo_nao_transforma_cores():
         assert proibido not in fonte
 
 
-def test_servidor_ocupado_nao_chama_o_pillow_e_da_503(client, sessao, pasta_uploads, monkeypatch):
-    import threading
-
-    monkeypatch.setattr(imagens, "_VAGAS", threading.BoundedSemaphore(1))
-    imagens._VAGAS.acquire()
+def test_orcamento_cheio_nao_decodifica_e_da_503(client, sessao, pasta_uploads, monkeypatch):
+    monkeypatch.setattr(imagens, "_ORCAMENTO", imagens._OrcamentoPixels(imagens.ORCAMENTO_PIXELS))
+    assert imagens._ORCAMENTO.reservar(imagens.ORCAMENTO_PIXELS, 0)  # tudo ocupado
     monkeypatch.setattr(imagens, "ESPERA_MAXIMA", 0.05)
-    monkeypatch.setattr(Image, "open", lambda *a, **k: pytest.fail("Pillow chamado"))
+    monkeypatch.setattr(ImageFile.ImageFile, "load", lambda *a, **k: pytest.fail("pixels decodificados"))
     r = enviar(client, PNG, nome="Mantido", valor="7,00")
     assert r.status_code == 503
     assert "Servidor ocupado, tente de novo." in r.text
@@ -484,11 +482,25 @@ def test_servidor_ocupado_nao_chama_o_pillow_e_da_503(client, sessao, pasta_uplo
     assert list(pasta_uploads.iterdir()) == []
 
 
-def test_vaga_e_liberada_mesmo_com_erro():
-    for _ in range(imagens.DECODIFICACOES_SIMULTANEAS + 2):
+def test_orcamento_imagem_grande_roda_sozinha_e_pequenas_juntas():
+    o = imagens._OrcamentoPixels(50_000_000)
+    assert o.reservar(50_000_000, 0)
+    assert not o.reservar(1, 0.01)  # nem 1 pixel a mais enquanto a grande roda
+    o.liberar(50_000_000)
+    assert o.reservar(2_000_000, 0) and o.reservar(2_000_000, 0)  # pequenas em paralelo
+    assert not o.reservar(50_000_000, 0.01)  # grande espera as pequenas
+    o.liberar(2_000_000)
+    o.liberar(2_000_000)
+    assert o.usado == 0
+
+
+def test_orcamento_e_liberado_mesmo_com_erro():
+    for _ in range(5):
         imagens.processar_imagem(b"\x89PNG\r\n\x1a\n" + b"0" * 20)
-    assert imagens._VAGAS.acquire(timeout=0.1)
-    imagens._VAGAS.release()
+        gerar_corrompida = bytearray(PNG)
+        gerar_corrompida[40:44] = b"\xff\xff\xff\xff"
+        imagens.processar_imagem(bytes(gerar_corrompida))
+    assert imagens._ORCAMENTO.usado == 0
 
 
 def test_escrita_falha_nao_deixa_arquivo_nem_temporario(pasta_uploads, monkeypatch):
