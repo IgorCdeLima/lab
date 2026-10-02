@@ -44,5 +44,10 @@ RUN groupadd --system --gid 10001 app \
     && chown app:app /uploads
 USER 10001:10001
 
+# SEC-T0010-03: cada thread do threadpool ganha uma arena do malloc e a memoria que o Pillow
+# libera fica retida nela; o pico subia a cada rodada de WebP de 50 MP ate o OOM. Duas arenas
+# estabilizam o pico (medido pela Seguranca: 1751 MiB em 14 rodadas, sem OOM).
+ENV MALLOC_ARENA_MAX=2
+
 EXPOSE 8000
 CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]

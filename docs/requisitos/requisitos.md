@@ -26,7 +26,7 @@ Uma página única onde o usuário cadastra produtos e vê os produtos já cadas
 | Nome | Obrigatório, 1 a 120 caracteres, sem espaços nas pontas |
 | Valor | Obrigatório, maior que zero, duas casas decimais, até 99.999.999,99. Formato pt-BR: vírgula decimal, ponto de milhar (`1.234` = 1234,00); ponto decimal só sem vírgula e com 1-2 casas (`12.5`); mais de duas casas é erro, sem arredondar |
 | Fornecedor | Obrigatório, 1 a 120 caracteres |
-| Imagem | Opcional; JPEG, PNG ou WebP; até 2 MB; tipo validado pelo conteúdo, não só pela extensão |
+| Imagem | Opcional; JPEG, PNG ou WebP; até 2 MB enviados; tipo pelos magic bytes **e** pela decodificação completa (o formato decodificado tem de ser o mesmo); lado até 10.000 px e área até 50 megapixels; a aplicação grava a imagem **regravada** (T-0010), no mesmo formato, com a orientação do EXIF aplicada e sem metadados; imagem animada ou multi-imagem vira o primeiro quadro |
 
 ## Requisitos não funcionais
 
@@ -40,10 +40,10 @@ Uma página única onde o usuário cadastra produtos e vê os produtos já cadas
 
 ## Notas de implementacao (T-0003)
 
-- Tipo da imagem pelos bytes iniciais (JPEG `FFD8FF`, PNG, WebP `RIFF....WEBP`); SVG e recusado. A imagem nao e reprocessada.
+- Tipo da imagem pelos bytes iniciais (JPEG `FFD8FF`, PNG, WebP `RIFF....WEBP`); SVG e recusado. ~~A imagem nao e reprocessada.~~ Desde a T-0010 a imagem e decodificada e regravada (ver "Regra da imagem" e "Notas de implementacao (T-0010)"); imagens gravadas antes dela nao foram reprocessadas.
 - Limite de 2 MB: leitura limitada a 2 MB + 1 byte, com erro 422 na pagina (campos preservados). Teto anti-DoS separado: `Content-Length` acima de 10 MB recebe 413; POST sem `Content-Length` (chunked) recebe 411.
 
-## Proposto pela T-0006 (aguarda aceite do humano)
+## Definido pela T-0006 (ADR-0002 e ADR-0003 aceitos em 2026-09-30)
 
 Origem: SEC-0002 a SEC-0005, observacoes do VER-0006/VER-0007 e ADR-0002/ADR-0003 (aceitos pelo humano em 2026-09-30).
 
@@ -57,11 +57,11 @@ Origem: SEC-0002 a SEC-0005, observacoes do VER-0006/VER-0007 e ADR-0002/ADR-000
 | RNF-09 | A imagem runtime nao tem pacote do sistema com correcao de seguranca disponivel na data do build (`apt list --upgradable` sem pacote de seguranca), e a varredura da imagem (alem do `pip-audit`) tem comando documentado; CVE sem correcao fica registrada com triagem | SEC-0002 | T-0008 |
 | RNF-10 | Os comandos documentados de `test`, `lint` e `audit` reconstroem a imagem antes de rodar (`run --build`), para nunca verificar codigo ou dependencias antigos | O1 (VER-0009/VER-0010) | T-0009 |
 
-### Regra da imagem (se o ADR-0002 for aceito)
+### Regra da imagem (ADR-0002, implementada na T-0010)
 
 | Campo | Regra |
 |---|---|
-| Imagem | Opcional; JPEG, PNG ou WebP; ate 2 MB **enviados**; tipo pelos magic bytes **e** pela decodificacao completa (o formato decodificado tem de ser o mesmo); lado ate 10.000 px e area ate 50 megapixels (premissa); a aplicacao grava a imagem **regravada**, no mesmo formato, com a orientacao do EXIF aplicada e sem metadados; imagem animada vira o primeiro quadro |
+| Imagem | Opcional; JPEG, PNG ou WebP; ate 2 MB **enviados**; tipo pelos magic bytes **e** pela decodificacao completa (o formato decodificado tem de ser o mesmo); lado ate 10.000 px e area ate 50 megapixels; a aplicacao grava a imagem **regravada**, no mesmo formato, com a orientacao do EXIF aplicada e sem metadados; imagem animada vira o primeiro quadro |
 
 Mensagens (422, na pagina, campos preservados), alem das atuais de tamanho e tipo. Entre aspas esta o texto literal da interface, com acentos, como as mensagens que ja existem em `app/imagens.py`:
 
@@ -76,6 +76,8 @@ O Revisor testa estes casos. Nenhum pode gerar erro 500.
 |---|---|---|
 | JPEG real 1200x800, ~300 KB | sim | 303; arquivo gravado abre como JPEG 1200x800 |
 | PNG real 8x8 com transparencia | sim | 303; gravado como PNG com canal alfa |
+| PNG de 16 bits em cinza (`I;16`) | sim | 303; gravado como PNG de 8 bits em cinza, niveis reescalados (BUG-T0010-01) |
+| PNG de 16 bits em cinza com cor transparente (`tRNS`) | sim | 303; gravado como PNG RGBA; a cor transparente e reescalada junto (`round(t/257)`) e o pixel dela fica com alfa 0 (BUG-T0010-02) |
 | WebP real 64x64 | sim | 303; gravado como WebP |
 | JPEG com EXIF `Orientation=6` e GPS | sim | 303; gravado ja girado (altura > largura se o original era retrato) e **sem** EXIF |
 | PNG real com extensao `.jpg` no nome | sim | 303; gravado como `.png` (tipo pelo conteudo) |
@@ -90,19 +92,27 @@ O Revisor testa estes casos. Nenhum pode gerar erro 500.
 | Imagem real de 3 MB | nao | 422 "no máximo 2 MB" com os campos preservados (como hoje) |
 | Corpo acima de 10 MB / sem `Content-Length` | nao | 413 / 411 (teto anti-DoS, como hoje) |
 
-### Premissas (T-0006)
+### Decisoes do humano (T-0006, aceitas em 2026-09-30)
 
 - Uso local, sem exposicao publica (como nas questoes em aberto). Exposicao publica mudaria a avaliacao do ADR-0002.
 - Limite de dimensao: 10.000 px de lado e 50 megapixels (cobre camera de celular de 48 MP). Revisavel.
 - Qualidade da regravacao: JPEG e WebP com qualidade 90; PNG sem perda. Revisavel.
-- Perfil de cor ICC: mantido (nao identifica a pessoa e evita mudar as cores). Revisavel.
+- Perfil de cor ICC: mantido (nao identifica a pessoa e evita mudar as cores); reserializado com `ImageCms` (D1, 2026-10-01). Revisavel.
 - Imagens gravadas antes da mudanca nao sao reprocessadas.
 - A imagem `dev` (servicos `test`, `lint`, `audit`) continua como root: nao publica porta e so roda localmente (RNF-07 vale para a runtime).
 - A CSP permite `style-src 'unsafe-inline'` enquanto o CSS estiver dentro de `index.html`; tirar o CSS para arquivo fica para uma tarefa de interface.
+- Analise de ameacas da T-0012 (2026-10-01): 50 MP mantidos tambem para WebP, com semaforo (D2); JPEG MPF/MPO aceito como JPEG de 1 quadro (D3); fila cheia -> 503 "Servidor ocupado, tente de novo." (D4).
+
+## Notas de implementacao (T-0010)
+
+- `app/imagens.py`: `processar_imagem` valida tamanho e magic bytes, abre com `Image.open(io.BytesIO, formats=[JPEG, PNG, WEBP])`, confere o formato (MPO conta como JPEG) e as dimensoes (`LADO_MAXIMO`, `AREA_MAXIMA`) **antes** de `load()`, aplica `exif_transpose`, regrava sem metadados (comentario COM e texto PNG incluidos) e reserializa o ICC com `ImageCms` (descartado se invalido). Qualquer excecao do Pillow vira "corrompida"; `DecompressionBombError` vira a mensagem de dimensao (nunca 500).
+- Concorrencia (SEC-T0010-01, decidido pelo humano em 2026-10-01): orcamento de pixels `ORCAMENTO_PIXELS` (50 MP, = `AREA_MAXIMA`) somado entre as decodificacoes do processo; cada uma reserva largura x altura antes de `load()`. Uma imagem de 50 MP roda sozinha; imagens pequenas rodam em paralelo. Espera de 30 s e fila de no maximo `FILA_MAXIMA` (8) requisicoes esperando (SEC-T0010-02); fila cheia ou espera estourada, 503 "Servidor ocupado, tente de novo." na pagina, campos preservados.
+- Memoria retida (SEC-T0010-03): a imagem runtime define `MALLOC_ARENA_MAX=2` (Dockerfile). Sem isso, cada thread do threadpool retem em sua arena do malloc a memoria que o Pillow libera, e o pico do `app` sobe a cada rodada de WebP de 50 MP ate o OOM. Medido pela Seguranca: com 2 arenas o pico estabiliza em 1751 MiB (14 rodadas, teto de 2000 MB, sem OOM). Teto de memoria com folga e `restart` ficam na T-0015.
+- Gravacao: temporario na pasta de uploads + `os.replace`; falha no commit remove o arquivo.
 
 ## Notas de implementacao (T-0007)
 
-- RNF-08 (definicao na tabela "Proposto pela T-0006"; valores exatos): toda resposta envia CSP (`default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` e `Referrer-Policy: strict-origin-when-cross-origin`, por um middleware ASGI (`CabecalhosSeguranca` em `app/main.py`) que envolve o app inteiro (`AppComCabecalhos`), por fora do `ServerErrorMiddleware`, entao cobre tambem 411/413 e o 500 (SEC-0006).
+- RNF-08 (definicao na tabela "Definido pela T-0006"; valores exatos): toda resposta envia CSP (`default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` e `Referrer-Policy: strict-origin-when-cross-origin`, por um middleware ASGI (`CabecalhosSeguranca` em `app/main.py`) que envolve o app inteiro (`AppComCabecalhos`), por fora do `ServerErrorMiddleware`, entao cobre tambem 411/413 e o 500 (SEC-0006).
 - `'unsafe-inline'` so em `style-src`, porque o CSS esta num `<style>` do template; remover quando o CSS for para arquivo.
 
 ## Decisões
@@ -113,6 +123,5 @@ O Revisor testa estes casos. Nenhum pode gerar erro 500.
 
 - **Edição e exclusão** de produtos: fora do escopo inicial.
 - **Autenticação:** fora do escopo inicial (uso local).
-- (T-0006) **Metadados das fotos importam?** Se nao importarem e imagem quebrada na listagem for aceitavel, o ADR-0002 pode ser rejeitado em favor do status quo com risco aceito. Bloqueia so o cartao T-0010.
 - (T-0006) **Acima de 10 MB** a resposta continua JSON 413 (VER-0007). Quer uma pagina amigavel nesse caso? Nao bloqueia.
 - (T-0006) **Varredura da imagem automatizada** (servico do Compose) ou so comando documentado com o `osv-scanner` da maquina? A T-0008 assume o comando documentado. Nao bloqueia.
