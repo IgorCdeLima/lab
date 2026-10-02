@@ -23,7 +23,8 @@ COPY app ./app
 # (o .dockerignore o deixa fora da imagem).
 FROM base AS dev
 COPY requirements-dev.txt .
-RUN pip install --no-cache-dir --require-hashes -r requirements-dev.txt
+# --force-reinstall: sem ele o pip ja presente na base nao e baixado e seu hash nao e conferido (SEC-T0014-01).
+RUN pip install --no-cache-dir --require-hashes --force-reinstall -r requirements-dev.txt
 
 # Estagio "lock": so para gerar os requirements travados (servico "lock" do Compose).
 # Mesma imagem Python da aplicacao. A ferramenta que gera os hashes tambem e instalada
@@ -33,7 +34,8 @@ RUN pip install --no-cache-dir --require-hashes -r requirements-dev.txt
 FROM python:3.13.15-slim AS lock
 WORKDIR /work
 COPY requirements-lock.txt .
-RUN pip install --no-cache-dir --require-hashes -r requirements-lock.txt
+# --force-reinstall: ver SEC-T0014-01 (confere o hash do pip que ja vem na base).
+RUN pip install --no-cache-dir --require-hashes --force-reinstall -r requirements-lock.txt
 
 # Estagio final (padrao): imagem de execucao. So leva app/ e requirements.txt:
 # nada de tests/, requirements-dev.txt, pytest, ruff, pip-audit nem pip-tools.
