@@ -88,8 +88,11 @@ services:
   # o seu nao for 1000), raiz do projeto NAO montada, sistema de arquivos somente leitura.
   # Entram so os 3 .in (somente leitura) e saem so os 3 .txt (arquivos existentes, regravados
   # no lugar, sem trocar o dono). .githooks/, .env, app/ e o resto nao existem no container.
-  # Sem --only-binary (SEC-0008, item 3): com ele o pip-compile descarta os hashes dos sdist e
-  # grava a linha "--only-binary" nos travados, que deixariam de ser identicos aos commitados.
+  # Os .txt atuais tambem sao copiados para /tmp: o pip-compile reaproveita os pinos existentes
+  # e so muda o que os .in exigem (BUG-T0014-01).
+  # Sem --only-binary (SEC-0008, item 3; SEC-T0014-04): a opcao funciona, mas remove os hashes
+  # dos sdist e grava a linha "--only-binary :all:" nos 3 travados. E mudanca intencional e mais
+  # restritiva, nao adotada aqui; decisao do humano (tarefa propria).
   # Mitigacao: o container nao tem root, nem a raiz do projeto, nem escrita fora dos 3 .txt.
   lock:
     profiles: ["lock"]
@@ -98,6 +101,10 @@ services:
       target: lock
     user: "${LOCK_UID:-1000}:${LOCK_GID:-1000}"
     read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
     tmpfs:
       - /tmp
     working_dir: /tmp
@@ -114,7 +121,7 @@ services:
       - sh
       - -ec
       - >-
-        cp /in/*.in /tmp/ &&
+        cp /in/*.in /out/*.txt /tmp/ &&
         pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet requirements-lock.in &&
         pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet requirements.in &&
         pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet requirements-dev.in &&
