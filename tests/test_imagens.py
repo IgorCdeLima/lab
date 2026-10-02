@@ -1,3 +1,4 @@
+import functools
 import io
 import struct
 
@@ -431,6 +432,7 @@ def test_sem_metadados_no_arquivo_gravado(client, sessao, pasta_uploads, formato
     assert not getattr(im, "text", {})
 
 
+@functools.cache  # createProfile grava a hora no cabecalho: gerar 2x numa virada de segundo difere
 def _icc_srgb():
     return ImageCms.ImageCmsProfile(ImageCms.createProfile("sRGB")).tobytes()
 
@@ -515,3 +517,31 @@ def test_pillow_so_recebe_bytes():
     fonte = open(imagens.__file__, encoding="utf-8").read()
     assert re.findall(r"Image\.open\((io\.BytesIO\(conteudo\))", fonte) == ["io.BytesIO(conteudo)"]
     assert fonte.count("Image.open(") == 1
+
+
+def test_png_16_bits_em_cinza_preserva_os_niveis():
+    """BUG-T0010-01: I;16 era gravado todo branco; agora e reescalado para 8 bits."""
+    gradiente = (
+        Image.linear_gradient("L").convert("I").point(lambda v: v * 257).convert("I;16")
+    )
+    buf = io.BytesIO()
+    gradiente.save(buf, "PNG")
+    with Image.open(io.BytesIO(buf.getvalue())) as entrada:
+        assert entrada.mode == "I;16"
+    ext, dados, erro = imagens.processar_imagem(buf.getvalue())
+    assert erro is None and ext == "png"
+    with Image.open(io.BytesIO(dados)) as saida:
+        assert saida.mode == "L"
+        assert saida.getpixel((0, 0)) == 0
+        assert saida.getpixel((0, 255)) == 255
+        assert saida.getpixel((0, 128)) == 128
+        assert len(set(saida.get_flattened_data())) >= 250
+
+
+def test_png_16_bits_valor_unico_nao_vira_branco():
+    buf = io.BytesIO()
+    Image.new("I;16", (4, 4), 30000).save(buf, "PNG")
+    _, dados, erro = imagens.processar_imagem(buf.getvalue())
+    assert erro is None
+    with Image.open(io.BytesIO(dados)) as saida:
+        assert saida.convert("L").getpixel((0, 0)) == 117

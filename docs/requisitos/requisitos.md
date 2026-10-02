@@ -76,6 +76,7 @@ O Revisor testa estes casos. Nenhum pode gerar erro 500.
 |---|---|---|
 | JPEG real 1200x800, ~300 KB | sim | 303; arquivo gravado abre como JPEG 1200x800 |
 | PNG real 8x8 com transparencia | sim | 303; gravado como PNG com canal alfa |
+| PNG de 16 bits em cinza (`I;16`) | sim | 303; gravado como PNG de 8 bits em cinza, niveis reescalados (BUG-T0010-01) |
 | WebP real 64x64 | sim | 303; gravado como WebP |
 | JPEG com EXIF `Orientation=6` e GPS | sim | 303; gravado ja girado (altura > largura se o original era retrato) e **sem** EXIF |
 | PNG real com extensao `.jpg` no nome | sim | 303; gravado como `.png` (tipo pelo conteudo) |
