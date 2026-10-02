@@ -77,6 +77,7 @@ O Revisor testa estes casos. Nenhum pode gerar erro 500.
 | JPEG real 1200x800, ~300 KB | sim | 303; arquivo gravado abre como JPEG 1200x800 |
 | PNG real 8x8 com transparencia | sim | 303; gravado como PNG com canal alfa |
 | PNG de 16 bits em cinza (`I;16`) | sim | 303; gravado como PNG de 8 bits em cinza, niveis reescalados (BUG-T0010-01) |
+| PNG de 16 bits em cinza com cor transparente (`tRNS`) | sim | 303; gravado como PNG RGBA; a cor transparente e reescalada junto (`round(t/257)`) e o pixel dela fica com alfa 0 (BUG-T0010-02) |
 | WebP real 64x64 | sim | 303; gravado como WebP |
 | JPEG com EXIF `Orientation=6` e GPS | sim | 303; gravado ja girado (altura > largura se o original era retrato) e **sem** EXIF |
 | PNG real com extensao `.jpg` no nome | sim | 303; gravado como `.png` (tipo pelo conteudo) |
@@ -106,6 +107,7 @@ O Revisor testa estes casos. Nenhum pode gerar erro 500.
 
 - `app/imagens.py`: `processar_imagem` valida tamanho e magic bytes, abre com `Image.open(io.BytesIO, formats=[JPEG, PNG, WEBP])`, confere o formato (MPO conta como JPEG) e as dimensoes (`LADO_MAXIMO`, `AREA_MAXIMA`) **antes** de `load()`, aplica `exif_transpose`, regrava sem metadados (comentario COM e texto PNG incluidos) e reserializa o ICC com `ImageCms` (descartado se invalido). Qualquer excecao do Pillow vira "corrompida"; `DecompressionBombError` vira a mensagem de dimensao (nunca 500).
 - Concorrencia (SEC-T0010-01, decidido pelo humano em 2026-10-01): orcamento de pixels `ORCAMENTO_PIXELS` (50 MP, = `AREA_MAXIMA`) somado entre as decodificacoes do processo; cada uma reserva largura x altura antes de `load()`. Uma imagem de 50 MP roda sozinha; imagens pequenas rodam em paralelo. Espera de 30 s e fila de no maximo `FILA_MAXIMA` (8) requisicoes esperando (SEC-T0010-02); fila cheia ou espera estourada, 503 "Servidor ocupado, tente de novo." na pagina, campos preservados.
+- Memoria retida (SEC-T0010-03): a imagem runtime define `MALLOC_ARENA_MAX=2` (Dockerfile). Sem isso, cada thread do threadpool retem em sua arena do malloc a memoria que o Pillow libera, e o pico do `app` sobe a cada rodada de WebP de 50 MP ate o OOM. Medido pela Seguranca: com 2 arenas o pico estabiliza em 1751 MiB (14 rodadas, teto de 2000 MB, sem OOM). Teto de memoria com folga e `restart` ficam na T-0015.
 - Gravacao: temporario na pasta de uploads + `os.replace`; falha no commit remove o arquivo.
 
 ## Notas de implementacao (T-0007)

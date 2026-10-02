@@ -97,7 +97,10 @@ def _icc_reserializado(icc: bytes | None) -> bytes | None:
 def _modo_para(im: Image.Image, ext: str) -> Image.Image:
     """Converte para um modo que o formato de saída aceita, mantendo a transparência."""
     if im.mode.startswith("I"):  # PNG de 16 bits em cinza: convert("RGB") satura (BUG-T0010-01)
+        t = im.info.get("transparency")
         im = im.convert("I").point(lambda v: v / 257 + 0.5).convert("L")
+        if isinstance(t, int):  # BUG-T0010-02: a cor transparente segue a mesma escala
+            im.info["transparency"] = round(t / 257)
     com_alfa = "A" in im.getbands() or "transparency" in im.info
     if ext == "jpg":
         return im if im.mode in ("L", "RGB", "CMYK") else im.convert("RGB")

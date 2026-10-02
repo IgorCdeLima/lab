@@ -581,3 +581,19 @@ def test_png_16_bits_valor_unico_nao_vira_branco():
     assert erro is None
     with Image.open(io.BytesIO(dados)) as saida:
         assert saida.convert("L").getpixel((0, 0)) == 117
+
+
+def test_png_16_bits_com_transparencia_mantem_o_alfa():
+    """BUG-T0010-02: a cor transparente (tRNS) de 16 bits seguia sem reescala e sumia."""
+    im = Image.new("I;16", (8, 8), 30000)
+    im.putpixel((0, 0), 1000)
+    buf = io.BytesIO()
+    im.save(buf, "PNG", transparency=1000)
+    with Image.open(io.BytesIO(buf.getvalue())) as entrada:
+        assert entrada.mode == "I;16" and entrada.info["transparency"] == 1000
+    ext, dados, erro = imagens.processar_imagem(buf.getvalue())
+    assert erro is None and ext == "png"
+    with Image.open(io.BytesIO(dados)) as saida:
+        assert saida.mode == "RGBA"
+        assert saida.getpixel((0, 0))[3] == 0
+        assert saida.getpixel((1, 1))[3] == 255
