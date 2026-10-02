@@ -13,7 +13,7 @@ docker compose up -d --build     # sobe app e db (o app espera o banco ficar sau
 docker compose run --build --rm test   # testes (imagem propria com pytest, contra o PostgreSQL do Compose)
 docker compose run --build --rm lint   # lint (ruff, config no pyproject.toml)
 docker compose run --build --rm audit  # vulnerabilidades dos arquivos travados e da imagem (pip-audit; precisa de internet)
-docker compose run --build --rm lock   # regenera requirements.txt e requirements-dev.txt (precisa de internet)
+docker compose run --build --rm lock   # regenera os 3 requirements*.txt (precisa de internet)
 docker compose down              # para (NUNCA use down -v: apaga o banco)
 ```
 

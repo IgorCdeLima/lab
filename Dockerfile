@@ -1,5 +1,5 @@
 # Estagio "base": dependencias de execucao, instaladas so com versao exata e hash
-# (requirements.txt e gerado por "docker compose run --rm lock"; ver ADR-0003).
+# (requirements.txt e gerado por "docker compose run --build --rm lock"; ver ADR-0003).
 FROM python:3.13.15-slim AS base
 
 ENV PYTHONDONTWRITEBYTECODE=1 \
@@ -26,11 +26,14 @@ COPY requirements-dev.txt .
 RUN pip install --no-cache-dir --require-hashes -r requirements-dev.txt
 
 # Estagio "lock": so para gerar os requirements travados (servico "lock" do Compose).
-# Mesma imagem Python da aplicacao, com pip e pip-tools em versao fixa.
+# Mesma imagem Python da aplicacao. A ferramenta que gera os hashes tambem e instalada
+# com versao exata e hash (requirements-lock.txt, gerado por este mesmo servico; SEC-0007).
 # Nao entra em "dev" nem em "runtime": o pip-tools nunca chega a essas imagens.
+# O usuario (sem root) e definido no servico "lock" do Compose.
 FROM python:3.13.15-slim AS lock
-RUN pip install --no-cache-dir pip==26.2.1 pip-tools==7.6.1
 WORKDIR /work
+COPY requirements-lock.txt .
+RUN pip install --no-cache-dir --require-hashes -r requirements-lock.txt
 
 # Estagio final (padrao): imagem de execucao. So leva app/ e requirements.txt:
 # nada de tests/, requirements-dev.txt, pytest, ruff, pip-audit nem pip-tools.

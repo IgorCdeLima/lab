@@ -21,7 +21,7 @@ Avaliacao completa: `docs/avaliacoes/travamento-de-dependencias.md` (pip-tools 8
 
 1. Dependencias diretas declaradas em `requirements.in` (runtime) e `requirements-dev.in` (dev, com `-c requirements.txt` no topo, fluxo em camadas do pip-tools).
 2. `requirements.txt` e `requirements-dev.txt` passam a ser **gerados** por `pip-compile --generate-hashes` e versionados; ninguem os edita a mao.
-3. A geracao roda num servico do Compose so para isso (ex.: `docker compose run --rm lock`), sobre a mesma imagem Python da aplicacao, com pip e pip-tools em versao fixa. Nada do pip-tools entra nas imagens `dev` e `runtime`.
+3. A geracao roda num servico do Compose so para isso (`docker compose run --build --rm lock`), sobre a mesma imagem Python da aplicacao, com pip e pip-tools em versao exata e hash (`requirements-lock.in`/`.txt`, T-0014, SEC-0007); o servico roda sem root, so ve os 3 `.in` (leitura) e os 3 `.txt` (escrita), SEC-0008. Nada do pip-tools entra nas imagens `dev` e `runtime`.
 4. O Dockerfile instala com `pip install --require-hashes`.
 5. O `audit` passa a auditar os arquivos travados (`pip-audit --require-hashes -r ...`).
 
@@ -40,7 +40,7 @@ Implementacao: cartao T-0009.
 
 - **Positivas:** fecha o SEC-0003; build reproduzivel; `pip-audit` e VER passam a olhar exatamente o que sera instalado; base para o Pillow (ADR-0002).
 - **Negativas / riscos:**
-  - Mudar uma dependencia exige regenerar o travado (`run --rm lock`) em vez de editar uma linha. Esse comando precisa estar no README.
+  - Mudar uma dependencia exige regenerar o travado (`run --build --rm lock`) em vez de editar uma linha. Esse comando precisa estar no README.
   - Hash depende da plataforma: gerar fora do container (ex.: Windows) pode produzir um arquivo que nao instala na imagem. Por isso o servico de travamento.
   - Se o pip-tools quebrar com um pip novo, trocar para o uv (mesmos `.in`).
 

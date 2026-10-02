@@ -81,24 +81,46 @@ services:
         pip-audit --require-hashes -r requirements.txt -r requirements-dev.txt &&
         pip-audit
 
-  # Gera requirements.txt e requirements-dev.txt (versao exata + hash) a partir dos .in.
-  # Roda no container porque o hash depende da plataforma. Precisa de internet.
+  # Gera requirements-lock.txt, requirements.txt e requirements-dev.txt (versao exata + hash)
+  # a partir dos .in. Roda no container porque o hash depende da plataforma. Precisa de internet.
   # Uso: docker compose run --build --rm lock
+  # Privilegio minimo (SEC-0008): usuario sem root (o do host; ajuste com LOCK_UID/LOCK_GID se
+  # o seu nao for 1000), raiz do projeto NAO montada, sistema de arquivos somente leitura.
+  # Entram so os 3 .in (somente leitura) e saem so os 3 .txt (arquivos existentes, regravados
+  # no lugar, sem trocar o dono). .githooks/, .env, app/ e o resto nao existem no container.
+  # Sem --only-binary (SEC-0008, item 3): com ele o pip-compile descarta os hashes dos sdist e
+  # grava a linha "--only-binary" nos travados, que deixariam de ser identicos aos commitados.
+  # Mitigacao: o container nao tem root, nem a raiz do projeto, nem escrita fora dos 3 .txt.
   lock:
     profiles: ["lock"]
     build:
       context: .
       target: lock
-    working_dir: /work
+    user: "${LOCK_UID:-1000}:${LOCK_GID:-1000}"
+    read_only: true
+    tmpfs:
+      - /tmp
+    working_dir: /tmp
+    environment:
+      HOME: /tmp
     volumes:
-      - .:/work
+      - ./requirements-lock.in:/in/requirements-lock.in:ro
+      - ./requirements.in:/in/requirements.in:ro
+      - ./requirements-dev.in:/in/requirements-dev.in:ro
+      - ./requirements-lock.txt:/out/requirements-lock.txt
+      - ./requirements.txt:/out/requirements.txt
+      - ./requirements-dev.txt:/out/requirements-dev.txt
     command:
       - sh
-      - -c
+      - -ec
       - >-
+        cp /in/*.in /tmp/ &&
+        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet requirements-lock.in &&
         pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet requirements.in &&
         pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet requirements-dev.in &&
-        chown --reference=requirements.in requirements.txt requirements-dev.txt
+        cat requirements-lock.txt > /out/requirements-lock.txt &&
+        cat requirements.txt > /out/requirements.txt &&
+        cat requirements-dev.txt > /out/requirements-dev.txt
 
 volumes:
   db_data:
