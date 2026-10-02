@@ -20,6 +20,7 @@ FORMATOS = ["JPEG", "PNG", "WEBP"]  # decodificadores permitidos (CS-03)
 FORMATO_DA_EXT = {"jpg": "JPEG", "png": "PNG", "webp": "WEBP"}
 ORCAMENTO_PIXELS = AREA_MAXIMA  # pixels em decodificacao ao mesmo tempo, somando as requisicoes (CS-08)
 ESPERA_MAXIMA = 30  # segundos esperando o orcamento (CS-08)
+FILA_MAXIMA = 8  # requisicoes esperando o orcamento; alem disso 503 imediato (SEC-T0010-02)
 ERRO_CORROMPIDA = "A imagem está corrompida ou não pôde ser lida."
 ERRO_DIMENSAO = "A imagem deve ter no máximo 10.000 px de lado e 50 megapixels."
 ERRO_OCUPADO = "Servidor ocupado, tente de novo."
@@ -47,14 +48,25 @@ class _OrcamentoPixels:
     Uma imagem de 50 MP ocupa tudo e roda sozinha; varias pequenas rodam juntas.
     """
 
-    def __init__(self, total: int):
+    def __init__(self, total: int, fila_maxima: int | None = None):
         self.total = total
         self.usado = 0
+        self.esperando = 0
+        self.fila_maxima = FILA_MAXIMA if fila_maxima is None else fila_maxima
         self._cond = threading.Condition()
 
     def reservar(self, pixels: int, espera: float) -> bool:
         with self._cond:
-            ok = self._cond.wait_for(lambda: self.usado + pixels <= self.total, timeout=espera)
+            if self.usado + pixels > self.total:
+                if self.esperando >= self.fila_maxima:  # fila cheia: recusa sem prender thread
+                    return False
+                self.esperando += 1
+                try:
+                    ok = self._cond.wait_for(lambda: self.usado + pixels <= self.total, timeout=espera)
+                finally:
+                    self.esperando -= 1
+            else:
+                ok = True
             if ok:
                 self.usado += pixels
             return ok

@@ -84,7 +84,7 @@ sequenceDiagram
             A-->>U: 422 "corrompida ou não pôde ser lida"
         else dimensoes acima do limite (antes de decodificar pixels)
             A-->>U: 422 "no máximo 10.000 px ... 50 megapixels"
-        else orcamento de pixels (50 MP no total) ocupado por mais de 30 s
+        else orcamento de pixels (50 MP) ocupado e fila de 8 cheia (503 na hora), ou espera acima de 30 s
             A-->>U: 503 "Servidor ocupado, tente de novo." (campos preservados)
         else dimensoes ok e pixels reservados
             A->>P: decodificar todos os pixels

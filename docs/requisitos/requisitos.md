@@ -105,7 +105,7 @@ O Revisor testa estes casos. Nenhum pode gerar erro 500.
 ## Notas de implementacao (T-0010)
 
 - `app/imagens.py`: `processar_imagem` valida tamanho e magic bytes, abre com `Image.open(io.BytesIO, formats=[JPEG, PNG, WEBP])`, confere o formato (MPO conta como JPEG) e as dimensoes (`LADO_MAXIMO`, `AREA_MAXIMA`) **antes** de `load()`, aplica `exif_transpose`, regrava sem metadados (comentario COM e texto PNG incluidos) e reserializa o ICC com `ImageCms` (descartado se invalido). Qualquer excecao do Pillow vira "corrompida"; `DecompressionBombError` vira a mensagem de dimensao (nunca 500).
-- Concorrencia (SEC-T0010-01, decidido pelo humano em 2026-10-01): orcamento de pixels `ORCAMENTO_PIXELS` (50 MP, = `AREA_MAXIMA`) somado entre as decodificacoes do processo; cada uma reserva largura x altura antes de `load()`. Uma imagem de 50 MP roda sozinha; imagens pequenas rodam em paralelo. Espera de 30 s; estourada, 503 "Servidor ocupado, tente de novo." na pagina, campos preservados.
+- Concorrencia (SEC-T0010-01, decidido pelo humano em 2026-10-01): orcamento de pixels `ORCAMENTO_PIXELS` (50 MP, = `AREA_MAXIMA`) somado entre as decodificacoes do processo; cada uma reserva largura x altura antes de `load()`. Uma imagem de 50 MP roda sozinha; imagens pequenas rodam em paralelo. Espera de 30 s e fila de no maximo `FILA_MAXIMA` (8) requisicoes esperando (SEC-T0010-02); fila cheia ou espera estourada, 503 "Servidor ocupado, tente de novo." na pagina, campos preservados.
 - Gravacao: temporario na pasta de uploads + `os.replace`; falha no commit remove o arquivo.
 
 ## Notas de implementacao (T-0007)

@@ -494,6 +494,30 @@ def test_orcamento_imagem_grande_roda_sozinha_e_pequenas_juntas():
     assert o.usado == 0
 
 
+def test_fila_cheia_recusa_na_hora_sem_prender_thread():
+    import threading
+    import time
+
+    o = imagens._OrcamentoPixels(10, fila_maxima=2)
+    assert o.reservar(10, 0)
+    resultados = []
+    esperas = [threading.Thread(target=lambda: resultados.append(o.reservar(10, 5))) for _ in range(2)]
+    for th in esperas:
+        th.start()
+    while o.esperando < 2:
+        time.sleep(0.01)
+    inicio = time.monotonic()
+    assert not o.reservar(10, 5)  # 3a requisicao: fila cheia, volta na hora
+    assert time.monotonic() - inicio < 0.5
+    o.liberar(10)  # uma espera passa; a outra segue esperando
+    for th in esperas:
+        th.join(0.5)
+    o.liberar(10)
+    for th in esperas:
+        th.join(5)
+    assert resultados == [True, True] and o.esperando == 0
+
+
 def test_orcamento_e_liberado_mesmo_com_erro():
     for _ in range(5):
         imagens.processar_imagem(b"\x89PNG\r\n\x1a\n" + b"0" * 20)
