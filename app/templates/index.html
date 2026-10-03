@@ -36,11 +36,15 @@
     <input id="imagem" name="imagem" type="file" accept="image/jpeg,image/png,image/webp">
     {% if erros.imagem %}<p class="erro">{{ erros.imagem }}</p>{% endif %}
 
+    {% if erros.banco %}<p class="erro" role="alert">{{ erros.banco }}</p>{% endif %}
+
     <p><button type="submit">Cadastrar</button></p>
   </form>
 
   <h2>Produtos</h2>
-  {% if produtos %}
+  {% if aviso %}
+  <p class="erro" role="alert">{{ aviso }}</p>
+  {% elif produtos %}
   <table>
     <thead><tr><th>Imagem</th><th>Nome</th><th>Fornecedor</th><th>Valor</th></tr></thead>
     <tbody>
