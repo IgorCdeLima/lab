@@ -24,6 +24,15 @@ services:
       POSTGRES_HOST: ${POSTGRES_HOST:-db}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       UPLOADS_DIR: /uploads
+    # Endurecimento (SEC-T0008-01, SEC-T0012-01): sem privilegios extras e com teto de recursos.
+    # Memoria 2000m: pico medido ~1289 MiB por decodificacao de 50 MP (VER-T0010-03), com margem.
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 2000m
+    cpus: 2
+    pids_limit: 256
     volumes:
       - uploads:/uploads
     ports:
