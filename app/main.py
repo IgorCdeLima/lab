@@ -7,6 +7,7 @@ from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, Upload
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
 from starlette.datastructures import MutableHeaders
 
@@ -105,14 +106,28 @@ def formatar_reais(valor: Decimal) -> str:
 templates.env.filters["reais"] = formatar_reais
 
 
+AVISO_BANCO = "Banco de dados indisponivel no momento. Tente de novo em instantes."
+
+
 def _pagina(request: Request, sessao: Session, status_code=200, erros=None, valores=None):
-    produtos = sessao.scalars(
-        select(Produto).order_by(Produto.criado_em.desc(), Produto.id.desc())
-    ).all()
+    """Renderiza a pagina. Banco lento/fora (BUG-T0010-03): lista vazia com aviso.
+
+    O status pedido (422/503) e mantido; so a pagina sem erro (GET /) vira 503.
+    """
+    aviso = None
+    try:
+        produtos = sessao.scalars(
+            select(Produto).order_by(Produto.criado_em.desc(), Produto.id.desc())
+        ).all()
+    except OperationalError:
+        sessao.rollback()
+        produtos, aviso = [], AVISO_BANCO
+        if status_code == 200:
+            status_code = 503
     return templates.TemplateResponse(
         request,
         "index.html",
-        {"produtos": produtos, "erros": erros or {}, "valores": valores or {}},
+        {"produtos": produtos, "erros": erros or {}, "valores": valores or {}, "aviso": aviso},
         status_code=status_code,
     )
 
@@ -157,6 +172,17 @@ def cadastrar(
     try:
         sessao.add(Produto(**dados, imagem_arquivo=arquivo))
         sessao.commit()
+    except OperationalError:
+        if arquivo:
+            imagens.remover(arquivo)
+        sessao.rollback()
+        return _pagina(
+            request,
+            sessao,
+            status_code=503,
+            erros={"banco": AVISO_BANCO},
+            valores={"nome": nome, "valor": valor, "fornecedor": fornecedor},
+        )
     except Exception:
         if arquivo:
             imagens.remover(arquivo)

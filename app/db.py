@@ -4,7 +4,7 @@ from sqlalchemy import create_engine, text
 from sqlalchemy.engine import Engine
 from sqlalchemy.orm import DeclarativeBase, Session, sessionmaker
 
-from app.config import database_url
+from app.config import database_url, statement_timeout_ms
 
 _engine: Engine | None = None
 
@@ -17,7 +17,12 @@ def get_engine() -> Engine:
     global _engine
     if _engine is None:
         _engine = create_engine(
-            database_url(), pool_pre_ping=True, connect_args={"connect_timeout": 3}
+            database_url(),
+            pool_pre_ping=True,
+            connect_args={
+                "connect_timeout": 3,
+                "options": f"-c statement_timeout={statement_timeout_ms()}",
+            },
         )
     return _engine
 

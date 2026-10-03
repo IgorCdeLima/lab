@@ -24,6 +24,20 @@ services:
       POSTGRES_HOST: ${POSTGRES_HOST:-db}
       POSTGRES_PORT: ${POSTGRES_PORT:-5432}
       UPLOADS_DIR: /uploads
+    # Endurecimento (SEC-T0008-01, SEC-T0012-01): sem privilegios extras e com teto de recursos.
+    # Memoria 2200m: pico do PROCESSO com MALLOC_ARENA_MAX=2 ~1767 MiB (SEC-T0010-03; uma
+    # decodificacao de 50 MP chega a ~1289 MiB, mas o processo retem mais) + 15% = ~2032 MiB.
+    # memswap_limit igual ao mem_limit: so o container nao usa swap (SEC-T0015-01).
+    # restart: um OOM kill nao deixa o app parado (SEC-T0015-02; vale apos 10 s no ar).
+    restart: unless-stopped
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    mem_limit: 2200m
+    memswap_limit: 2200m
+    cpus: 2
+    pids_limit: 256
     volumes:
       - uploads:/uploads
     ports:

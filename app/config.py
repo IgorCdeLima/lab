@@ -20,6 +20,15 @@ def database_url() -> str:
     ).render_as_string(hide_password=False)
 
 
+def statement_timeout_ms() -> int:
+    """Tempo maximo de uma consulta, em ms (SEC-T0015-03). Padrao 5000; nao e segredo."""
+    try:
+        valor = int(os.environ.get("DB_STATEMENT_TIMEOUT_MS", "5000"))
+    except ValueError:
+        return 5000
+    return valor if valor > 0 else 5000
+
+
 def uploads_dir() -> str:
     """Pasta (volume) onde as imagens enviadas são salvas."""
     return os.environ.get("UPLOADS_DIR", "/uploads")
