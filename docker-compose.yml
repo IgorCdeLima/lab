@@ -68,7 +68,7 @@ services:
 
   # Varredura de vulnerabilidades nos arquivos travados e no que foi instalado (precisa de internet).
   # Uso: docker compose run --build --rm audit
-  # O 1o comando audita os arquivos travados (exige hash); o 2o, o ambiente instalado na imagem dev.
+  # O 1o comando audita os 3 arquivos travados (inclui o do estagio lock; SEC-T0014-02; exige hash); o 2o, o ambiente instalado na imagem dev.
   audit:
     profiles: ["test"]
     build:
@@ -78,27 +78,62 @@ services:
       - sh
       - -c
       - >-
-        pip-audit --require-hashes -r requirements.txt -r requirements-dev.txt &&
+        pip-audit --require-hashes -r requirements.txt -r requirements-dev.txt -r requirements-lock.txt &&
         pip-audit
+    volumes:
+      - ./requirements-lock.txt:/code/requirements-lock.txt:ro
 
-  # Gera requirements.txt e requirements-dev.txt (versao exata + hash) a partir dos .in.
-  # Roda no container porque o hash depende da plataforma. Precisa de internet.
+  # Gera requirements-lock.txt, requirements.txt e requirements-dev.txt (versao exata + hash)
+  # a partir dos .in. Roda no container porque o hash depende da plataforma. Precisa de internet.
   # Uso: docker compose run --build --rm lock
+  # Privilegio minimo (SEC-0008): usuario sem root (o do host; ajuste com LOCK_UID/LOCK_GID se
+  # o seu nao for 1000), raiz do projeto NAO montada, sistema de arquivos somente leitura.
+  # Entram so os 3 .in (somente leitura) e saem so os 3 .txt (arquivos existentes, regravados
+  # no lugar, sem trocar o dono). .githooks/, .env, app/ e o resto nao existem no container.
+  # Os .txt atuais tambem sao copiados para /tmp: o pip-compile reaproveita os pinos existentes
+  # e so muda o que os .in exigem (BUG-T0014-01).
+  # Com --only-binary=:all: (SEC-0008, item 3; SEC-T0014-04): so wheels; o pip-compile nunca executa
+  # build de sdist neste container e grava a linha "--only-binary :all:" nos 3 travados (que
+  # valem tambem na instalacao). Pacote so com sdist: --no-binary=<pacote> explicito e justificado.
+  # Com --no-reuse-hashes (SEC-T0014-05): o pip-compile mantem as versoes dos .txt copiados mas
+  # recalcula os hashes do zero (sem isso reaproveita hashes antigos, inclusive adulterados, e
+  # hashes de sdist inertes). Nos estagios lock e dev do Dockerfile, --force-reinstall faz o
+  # pip conferir tambem o hash do proprio pip (SEC-T0014-01).
+  # Mitigacao: o container nao tem root, nem a raiz do projeto, nem escrita fora dos 3 .txt.
   lock:
     profiles: ["lock"]
     build:
       context: .
       target: lock
-    working_dir: /work
+    user: "${LOCK_UID:-1000}:${LOCK_GID:-1000}"
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    tmpfs:
+      - /tmp
+    working_dir: /tmp
+    environment:
+      HOME: /tmp
     volumes:
-      - .:/work
+      - ./requirements-lock.in:/in/requirements-lock.in:ro
+      - ./requirements.in:/in/requirements.in:ro
+      - ./requirements-dev.in:/in/requirements-dev.in:ro
+      - ./requirements-lock.txt:/out/requirements-lock.txt
+      - ./requirements.txt:/out/requirements.txt
+      - ./requirements-dev.txt:/out/requirements-dev.txt
     command:
       - sh
-      - -c
+      - -ec
       - >-
-        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet requirements.in &&
-        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet requirements-dev.in &&
-        chown --reference=requirements.in requirements.txt requirements-dev.txt
+        cp /in/*.in /out/*.txt /tmp/ &&
+        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet --no-reuse-hashes --pip-args '--only-binary=:all:' requirements-lock.in &&
+        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet --no-reuse-hashes --pip-args '--only-binary=:all:' requirements.in &&
+        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet --no-reuse-hashes --pip-args '--only-binary=:all:' requirements-dev.in &&
+        cat requirements-lock.txt > /out/requirements-lock.txt &&
+        cat requirements.txt > /out/requirements.txt &&
+        cat requirements-dev.txt > /out/requirements-dev.txt
 
 volumes:
   db_data:
