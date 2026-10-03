@@ -95,6 +95,10 @@ services:
   # Com --only-binary=:all: (SEC-0008, item 3; SEC-T0014-04): so wheels; o pip-compile nunca executa
   # build de sdist neste container e grava a linha "--only-binary :all:" nos 3 travados (que
   # valem tambem na instalacao). Pacote so com sdist: --no-binary=<pacote> explicito e justificado.
+  # Com --no-reuse-hashes (SEC-T0014-05): o pip-compile mantem as versoes dos .txt copiados mas
+  # recalcula os hashes do zero (sem isso reaproveita hashes antigos, inclusive adulterados, e
+  # hashes de sdist inertes). Nos estagios lock e dev do Dockerfile, --force-reinstall faz o
+  # pip conferir tambem o hash do proprio pip (SEC-T0014-01).
   # Mitigacao: o container nao tem root, nem a raiz do projeto, nem escrita fora dos 3 .txt.
   lock:
     profiles: ["lock"]
@@ -124,9 +128,9 @@ services:
       - -ec
       - >-
         cp /in/*.in /out/*.txt /tmp/ &&
-        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet --pip-args '--only-binary=:all:' requirements-lock.in &&
-        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet --pip-args '--only-binary=:all:' requirements.in &&
-        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet --pip-args '--only-binary=:all:' requirements-dev.in &&
+        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet --no-reuse-hashes --pip-args '--only-binary=:all:' requirements-lock.in &&
+        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet --no-reuse-hashes --pip-args '--only-binary=:all:' requirements.in &&
+        pip-compile --generate-hashes --allow-unsafe --strip-extras --quiet --no-reuse-hashes --pip-args '--only-binary=:all:' requirements-dev.in &&
         cat requirements-lock.txt > /out/requirements-lock.txt &&
         cat requirements.txt > /out/requirements.txt &&
         cat requirements-dev.txt > /out/requirements-dev.txt

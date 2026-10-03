@@ -21,7 +21,10 @@ Avaliacao completa: `docs/avaliacoes/travamento-de-dependencias.md` (pip-tools 8
 
 1. Dependencias diretas declaradas em `requirements.in` (runtime) e `requirements-dev.in` (dev, com `-c requirements.txt` no topo, fluxo em camadas do pip-tools).
 2. `requirements.txt` e `requirements-dev.txt` passam a ser **gerados** por `pip-compile --generate-hashes` e versionados; ninguem os edita a mao.
-3. A geracao roda num servico do Compose so para isso (`docker compose run --build --rm lock`), sobre a mesma imagem Python da aplicacao, com pip e pip-tools em versao exata e hash (`requirements-lock.in`/`.txt`, T-0014, SEC-0007); o servico roda sem root, so ve os 3 `.in` (leitura) e os 3 `.txt` (escrita), SEC-0008. Nada do pip-tools entra nas imagens `dev` e `runtime`.
+3. A geracao roda num servico do Compose so para isso (`docker compose run --build --rm lock`), sobre a mesma imagem Python da aplicacao, com pip e pip-tools em versao exata e hash (`requirements-lock.in`/`.txt`, T-0014, SEC-0007); o servico roda sem root, so ve os 3 `.in` (leitura) e os 3 `.txt` (escrita), SEC-0008. Nada do pip-tools entra nas imagens `dev` e `runtime`. Opcoes do `lock` (T-0014):
+   - `--pip-args '--only-binary=:all:'`: so wheels, sem build de sdist; grava `--only-binary :all:` nos travados. Pacote que so tem sdist exige `--no-binary=<pacote>` explicito e justificado (SEC-T0014-04);
+   - `--no-reuse-hashes`: os hashes sao recalculados, sem herdar hash antigo (inclusive adulterado) nem hash de sdist inerte; as versoes continuam as dos `.txt` existentes (SEC-T0014-05);
+   - `--force-reinstall` nos estagios `lock` e `dev` do Dockerfile: o pip e reinstalado e seu hash conferido, pois o pip da imagem base nao seria verificado (SEC-T0014-01).
 4. O Dockerfile instala com `pip install --require-hashes`.
 5. O `audit` passa a auditar os arquivos travados (`pip-audit --require-hashes -r ...`).
 
