@@ -25,7 +25,7 @@
 
   /* ---------- Cores: estados ---------- */
   --cor-erro: #B3261E;             /* texto e borda de erro: 6,5:1 sobre branco */
-  --cor-erro-suave: #FDECEC;       /* fundo do resumo de erros: texto de erro 5,8:1 */
+  --cor-erro-suave: #FDECEC;       /* fundo do resumo de erros: texto de erro 5,7:1 (5,72; VER-0016 O5) */
   --cor-sucesso: #1E6B3A;          /* reservado (mensagem de sucesso, se aprovada) */
   --cor-sucesso-suave: #E7F4EC;
 

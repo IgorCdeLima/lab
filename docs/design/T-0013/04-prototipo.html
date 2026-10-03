@@ -1,0 +1,522 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadastro de produtos - prototipo T-0013</title>
+<!--
+  Prototipo estatico da T-0013: complemento do prototipo da T-0011 (direcao "estrutura A + carrossel").
+  Sem <style>, sem style="", sem <script> inline e sem atributos on*= : funciona com
+  CSP "default-src 'self'; style-src 'self'; script-src 'self'" (sem 'unsafe-inline').
+  Arquivos (o Dev copia sem adaptar, so troca o caminho do href/src para /static/...):
+    ../sistema/tokens.css  -> /static/tokens.css
+    static/cadastro.css    -> /static/cadastro.css
+    static/carrossel.js    -> /static/carrossel.js (defer)
+    static/prototipo.css   -> NAO vai (barra rosa, rotulos e tabela de referencia)
+  As fotos sao SVG inline so para o prototipo; no app sao <img src="/uploads/..."> (img-src 'self').
+  Os ids levam sufixo por estado (nome-1, nome-3...) porque varios estados estao na mesma pagina;
+  no app sao "nome", "valor", "fornecedor", "imagem".
+-->
+<link rel="stylesheet" href="../sistema/tokens.css">
+<link rel="stylesheet" href="static/cadastro.css">
+<link rel="stylesheet" href="static/prototipo.css">
+<script src="static/carrossel.js" defer></script>
+</head>
+<body>
+
+<!-- PROTOTIPO: navegacao entre estados (nao vai para o app) -->
+<nav class="proto-barra" aria-label="Estados do protótipo">
+  <strong>Protótipo T-0013</strong>
+  <a href="#estado-lista">1. Lista</a>
+  <a href="#estado-vazio">2. Vazia</a>
+  <a href="#estado-erros">3. Erros nos campos</a>
+  <a href="#estado-imagem">4. Erro de imagem</a>
+  <a href="#estado-ocupado">5. Servidor ocupado<span class="proto-novo">novo</span></a>
+  <a href="#estado-banco-get">6. Banco fora (abrir)<span class="proto-novo">novo</span></a>
+  <a href="#estado-banco-post">7. Banco fora (cadastrar)<span class="proto-novo">novo</span></a>
+  <a href="#mensagens">Mensagens</a>
+</nav>
+
+<!-- Icones reutilizados (SVG inline, sem recurso externo). Vai para o template: classe .sprite, sem style="" -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-marca" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#0F5F73"/><path d="M7 12h10M12 7v10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-erro" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M8 4.2v4.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.4" r="1.1" fill="#fff"/></symbol>
+  <symbol id="i-anterior" viewBox="0 0 20 20"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-proximo" viewBox="0 0 20 20"><path d="M7.5 4.5 13 10l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sem-imagem" viewBox="0 0 40 40"><rect x="5" y="8" width="30" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="26" cy="15" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 29l9-9 6 6 4-4 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-caixa" viewBox="0 0 48 48"><path d="M8 16 24 8l16 8v18l-16 8-16-8z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M8 16l16 8 16-8M24 24v18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></symbol>
+  <!-- T-0013: banco de dados com traco (lista indisponivel) -->
+  <symbol id="i-banco-fora" viewBox="0 0 48 48"><ellipse cx="22" cy="11" rx="13" ry="5" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M9 11v24c0 2.8 5.8 5 13 5M35 11v12M9 23c0 2.8 5.8 5 13 5s13-2.2 13-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M30 31l10 10M40 31 30 41" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  <!-- fotos ficticias: so no prototipo -->
+  <symbol id="f-cafe" viewBox="0 0 100 100"><rect width="100" height="100" fill="#6B4A2E"/><ellipse cx="34" cy="40" rx="11" ry="8" fill="#3E2A19" transform="rotate(-30 34 40)"/><ellipse cx="62" cy="58" rx="12" ry="9" fill="#3E2A19" transform="rotate(20 62 58)"/><ellipse cx="66" cy="28" rx="9" ry="7" fill="#4E3522"/><ellipse cx="38" cy="72" rx="10" ry="7" fill="#4E3522" transform="rotate(10 38 72)"/></symbol>
+  <symbol id="f-geladeira" viewBox="0 0 100 100"><rect width="100" height="100" fill="#D9DEE2"/><rect x="32" y="12" width="36" height="78" rx="4" fill="#A9B3BC"/><path d="M32 38h36" stroke="#D9DEE2" stroke-width="2"/><rect x="61" y="20" width="3" height="12" rx="1" fill="#6E7B88"/><rect x="61" y="44" width="3" height="18" rx="1" fill="#6E7B88"/></symbol>
+  <symbol id="f-notebook" viewBox="0 0 100 100"><rect width="100" height="100" fill="#2F3B4A"/><rect x="24" y="30" width="52" height="34" rx="3" fill="#7FA7C2"/><rect x="16" y="64" width="68" height="6" rx="2" fill="#8A96A3"/></symbol>
+  <symbol id="f-cadeira" viewBox="0 0 100 100"><rect width="100" height="100" fill="#E8DCCB"/><rect x="34" y="14" width="32" height="38" rx="8" fill="#33404F"/><rect x="30" y="52" width="40" height="10" rx="4" fill="#33404F"/><path d="M50 62v18M36 86h28M50 80l-12 6M50 80l12 6" stroke="#5B6675" stroke-width="3" stroke-linecap="round"/></symbol>
+</svg>
+
+<!-- =================================================================== -->
+<!-- ESTADO 1: lista com produtos (200)                                   -->
+<!-- =================================================================== -->
+<section class="proto-quadro" id="estado-lista" aria-label="Estado 1">
+  <p class="proto-rotulo"><strong>Estado 1</strong> — <code>GET /</code> 200, lista com 6 produtos (com e sem imagem, nome longo, fornecedor longo, valor máximo). Depois de cadastrar (303 para <code>/</code>), o produto novo entra como primeiro cartão, sem destaque. Role o carrossel com o mouse, o teclado (Tab até a lista, setas) ou os botões ‹ › (só com JS e só no desktop/tablet).</p>
+
+  <header class="cabecalho">
+    <div class="cabecalho__conteudo">
+      <svg class="cabecalho__marca" aria-hidden="true"><use href="#i-marca"/></svg>
+      <h1>Cadastro de produtos</h1>
+      <p class="cabecalho__contagem">6 produtos</p>
+    </div>
+  </header>
+
+  <main class="pagina">
+    <section class="painel cartao-form" aria-labelledby="t-novo-1">
+      <h2 id="t-novo-1">Novo produto</h2>
+      <p class="painel__sub">Todos os campos são obrigatórios, exceto a imagem.</p>
+      <form method="post" action="/produtos" enctype="multipart/form-data" novalidate>
+        <div class="campo">
+          <label for="nome-1">Nome</label>
+          <input id="nome-1" name="nome" autocomplete="off">
+        </div>
+        <div class="campo">
+          <label for="valor-1">Valor<span class="sr-only"> em reais</span></label>
+          <div class="campo-prefixo">
+            <span class="campo-prefixo__texto" aria-hidden="true">R$</span>
+            <input id="valor-1" name="valor" inputmode="decimal" autocomplete="off" aria-describedby="valor-1-dica">
+          </div>
+          <p class="dica" id="valor-1-dica">Ex.: 1234,56</p>
+        </div>
+        <div class="campo">
+          <label for="fornecedor-1">Fornecedor</label>
+          <input id="fornecedor-1" name="fornecedor">
+        </div>
+        <div class="campo">
+          <label for="imagem-1">Imagem <span class="rotulo-opcional">(opcional)</span></label>
+          <div class="campo-arquivo">
+            <input id="imagem-1" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="imagem-1-dica">
+            <p class="dica" id="imagem-1-dica">JPEG, PNG ou WebP, até 2 MB</p>
+          </div>
+        </div>
+        <button class="botao-primario" type="submit">Cadastrar</button>
+      </form>
+    </section>
+
+    <section class="painel produtos" aria-labelledby="t-prod-1" data-carrossel>
+      <div class="produtos__topo">
+        <div>
+          <h2 id="t-prod-1">Produtos</h2>
+          <p class="painel__sub">Mais recentes primeiro</p>
+        </div>
+        <div class="carrossel-nav" hidden>
+          <button class="botao-circulo" type="button" data-anterior aria-controls="carrossel-1" aria-label="Produtos anteriores"><svg aria-hidden="true"><use href="#i-anterior"/></svg></button>
+          <button class="botao-circulo" type="button" data-proximo aria-controls="carrossel-1" aria-label="Próximos produtos"><svg aria-hidden="true"><use href="#i-proximo"/></svg></button>
+        </div>
+      </div>
+      <div class="carrossel" id="carrossel-1" role="region" aria-label="Lista de produtos, role para o lado" tabindex="0">
+        <ul class="carrossel__lista">
+          <li class="cartao">
+            <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Café torrado em grãos 1 kg" preserveAspectRatio="xMidYMid slice"><use href="#f-cafe"/></svg></div>
+            <h3 class="cartao__nome">Café torrado em grãos 1 kg</h3>
+            <p class="cartao__fornecedor" title="Torrefação Serra Azul">Torrefação Serra Azul</p>
+            <p class="cartao__valor">R$ 54,90</p>
+          </li>
+          <li class="cartao">
+            <div class="cartao__foto cartao__foto--vazia"><svg aria-hidden="true"><use href="#i-sem-imagem"/></svg><span>sem imagem</span></div>
+            <h3 class="cartao__nome">Caixa organizadora de polipropileno com tampa e travas laterais, 56 litros, transparente</h3>
+            <p class="cartao__fornecedor" title="Plásticos Ipiranga Ltda.">Plásticos Ipiranga Ltda.</p>
+            <p class="cartao__valor">R$ 89,90</p>
+          </li>
+          <li class="cartao">
+            <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Geladeira frost free inox 480 L" preserveAspectRatio="xMidYMid slice"><use href="#f-geladeira"/></svg></div>
+            <h3 class="cartao__nome">Geladeira frost free inox 480 L</h3>
+            <p class="cartao__fornecedor" title="Eletro Distribuidora Sul">Eletro Distribuidora Sul</p>
+            <p class="cartao__valor">R$ 4.799,00</p>
+          </li>
+          <li class="cartao">
+            <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Lote de notebooks corporativos" preserveAspectRatio="xMidYMid slice"><use href="#f-notebook"/></svg></div>
+            <h3 class="cartao__nome">Lote de notebooks corporativos</h3>
+            <p class="cartao__fornecedor" title="Tech Atacado">Tech Atacado</p>
+            <p class="cartao__valor">R$ 99.999.999,99</p>
+          </li>
+          <li class="cartao">
+            <div class="cartao__foto cartao__foto--vazia"><svg aria-hidden="true"><use href="#i-sem-imagem"/></svg><span>sem imagem</span></div>
+            <h3 class="cartao__nome">Detergente neutro 500 ml</h3>
+            <p class="cartao__fornecedor" title="Comercial Atacadista de Utilidades Domésticas Irmãos Ferreira Ltda.">Comercial Atacadista de Utilidades Domésticas Irmãos Ferreira Ltda.</p>
+            <p class="cartao__valor">R$ 2,49</p>
+          </li>
+          <li class="cartao">
+            <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Cadeira de escritório ergonômica" preserveAspectRatio="xMidYMid slice"><use href="#f-cadeira"/></svg></div>
+            <h3 class="cartao__nome">Cadeira de escritório ergonômica</h3>
+            <p class="cartao__fornecedor" title="Móveis Ponto Sul">Móveis Ponto Sul</p>
+            <p class="cartao__valor">R$ 1.249,90</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</section>
+
+<!-- =================================================================== -->
+<!-- ESTADO 2: lista vazia (200)                                          -->
+<!-- =================================================================== -->
+<section class="proto-quadro" id="estado-vazio" aria-label="Estado 2">
+  <p class="proto-rotulo"><strong>Estado 2</strong> — <code>GET /</code> 200, nenhum produto cadastrado. Sem contagem no cabeçalho; o carrossel não é renderizado.</p>
+  <header class="cabecalho">
+    <div class="cabecalho__conteudo">
+      <svg class="cabecalho__marca" aria-hidden="true"><use href="#i-marca"/></svg>
+      <h1>Cadastro de produtos</h1>
+    </div>
+  </header>
+  <main class="pagina">
+    <section class="painel cartao-form" aria-labelledby="t-novo-2">
+      <h2 id="t-novo-2">Novo produto</h2>
+      <p class="painel__sub">Todos os campos são obrigatórios, exceto a imagem.</p>
+      <form method="post" action="/produtos" enctype="multipart/form-data" novalidate>
+        <div class="campo"><label for="nome-2">Nome</label><input id="nome-2" name="nome" autocomplete="off"></div>
+        <div class="campo">
+          <label for="valor-2">Valor<span class="sr-only"> em reais</span></label>
+          <div class="campo-prefixo"><span class="campo-prefixo__texto" aria-hidden="true">R$</span><input id="valor-2" name="valor" inputmode="decimal" autocomplete="off" aria-describedby="valor-2-dica"></div>
+          <p class="dica" id="valor-2-dica">Ex.: 1234,56</p>
+        </div>
+        <div class="campo"><label for="fornecedor-2">Fornecedor</label><input id="fornecedor-2" name="fornecedor"></div>
+        <div class="campo">
+          <label for="imagem-2">Imagem <span class="rotulo-opcional">(opcional)</span></label>
+          <div class="campo-arquivo"><input id="imagem-2" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="imagem-2-dica"><p class="dica" id="imagem-2-dica">JPEG, PNG ou WebP, até 2 MB</p></div>
+        </div>
+        <button class="botao-primario" type="submit">Cadastrar</button>
+      </form>
+    </section>
+    <section class="painel produtos" aria-labelledby="t-prod-2">
+      <h2 id="t-prod-2">Produtos</h2>
+      <div class="vazio">
+        <svg aria-hidden="true"><use href="#i-caixa"/></svg>
+        <p class="vazio__titulo">Nenhum produto cadastrado.</p>
+        <p class="vazio__texto">Preencha o formulário para cadastrar o primeiro.</p>
+      </div>
+    </section>
+  </main>
+</section>
+
+<!-- =================================================================== -->
+<!-- ESTADO 3: erros nos campos de texto, valores preservados (422)       -->
+<!-- =================================================================== -->
+<section class="proto-quadro" id="estado-erros" aria-label="Estado 3">
+  <p class="proto-rotulo"><strong>Estado 3</strong> — <code>POST /produtos</code> 422 com erro em Nome, Valor e Fornecedor. Os valores digitados voltam preenchidos (o fornecedor de exemplo tem 131 caracteres: corrige o BUG-0009); a imagem não volta (o navegador não guarda o arquivo), por isso o aviso no campo Imagem. No app, o primeiro campo com erro recebe <code>autofocus</code> (aqui não, porque há vários estados na mesma página).</p>
+  <header class="cabecalho">
+    <div class="cabecalho__conteudo">
+      <svg class="cabecalho__marca" aria-hidden="true"><use href="#i-marca"/></svg>
+      <h1>Cadastro de produtos</h1>
+      <p class="cabecalho__contagem">1 produto</p>
+    </div>
+  </header>
+  <main class="pagina">
+    <section class="painel cartao-form" aria-labelledby="t-novo-3">
+      <h2 id="t-novo-3">Novo produto</h2>
+      <p class="painel__sub">Todos os campos são obrigatórios, exceto a imagem.</p>
+      <form method="post" action="/produtos" enctype="multipart/form-data" novalidate>
+        <div class="resumo-erros" role="alert">
+          <h3>Corrija os campos marcados para cadastrar.</h3>
+          <ul>
+            <li><a href="#nome-3">Nome: Informe o nome.</a></li>
+            <li><a href="#valor-3">Valor: Valor inválido. Use o formato 1234,56 (até duas casas decimais).</a></li>
+            <li><a href="#fornecedor-3">Fornecedor: O fornecedor deve ter no máximo 120 caracteres.</a></li>
+          </ul>
+        </div>
+        <div class="campo">
+          <label for="nome-3">Nome</label>
+          <input id="nome-3" name="nome" value="" autocomplete="off" aria-invalid="true" aria-describedby="nome-3-erro">
+          <p class="msg-erro" id="nome-3-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>Informe o nome.</p>
+        </div>
+        <div class="campo">
+          <label for="valor-3">Valor<span class="sr-only"> em reais</span></label>
+          <div class="campo-prefixo"><span class="campo-prefixo__texto" aria-hidden="true">R$</span><input id="valor-3" name="valor" value="4799,999" inputmode="decimal" autocomplete="off" aria-invalid="true" aria-describedby="valor-3-erro valor-3-dica"></div>
+          <p class="msg-erro" id="valor-3-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>Valor inválido. Use o formato 1234,56 (até duas casas decimais).</p>
+          <p class="dica" id="valor-3-dica">Ex.: 1234,56</p>
+        </div>
+        <div class="campo">
+          <label for="fornecedor-3">Fornecedor</label>
+          <input id="fornecedor-3" name="fornecedor" value="Distribuidora Nacional de Eletrodomésticos, Eletroportáteis e Utilidades para o Lar do Sul e Sudeste Ltda. ME - Filial Porto Alegre" aria-invalid="true" aria-describedby="fornecedor-3-erro">
+          <p class="msg-erro" id="fornecedor-3-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>O fornecedor deve ter no máximo 120 caracteres.</p>
+        </div>
+        <div class="campo">
+          <label for="imagem-3">Imagem <span class="rotulo-opcional">(opcional)</span></label>
+          <div class="campo-arquivo">
+            <input id="imagem-3" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="imagem-3-reenvio imagem-3-dica">
+            <p class="dica" id="imagem-3-reenvio"><strong>Se você tinha escolhido uma imagem, escolha de novo.</strong></p>
+            <p class="dica" id="imagem-3-dica">JPEG, PNG ou WebP, até 2 MB</p>
+          </div>
+        </div>
+        <button class="botao-primario" type="submit">Cadastrar</button>
+      </form>
+    </section>
+    <section class="painel produtos" aria-labelledby="t-prod-3" data-carrossel>
+      <div class="produtos__topo">
+        <div>
+          <h2 id="t-prod-3">Produtos</h2>
+          <p class="painel__sub">Mais recentes primeiro</p>
+        </div>
+        <div class="carrossel-nav" hidden>
+          <button class="botao-circulo" type="button" data-anterior aria-controls="carrossel-3" aria-label="Produtos anteriores"><svg aria-hidden="true"><use href="#i-anterior"/></svg></button>
+          <button class="botao-circulo" type="button" data-proximo aria-controls="carrossel-3" aria-label="Próximos produtos"><svg aria-hidden="true"><use href="#i-proximo"/></svg></button>
+        </div>
+      </div>
+      <div class="carrossel" id="carrossel-3" role="region" aria-label="Lista de produtos, role para o lado" tabindex="0">
+        <ul class="carrossel__lista">
+          <li class="cartao">
+            <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Café torrado em grãos 1 kg" preserveAspectRatio="xMidYMid slice"><use href="#f-cafe"/></svg></div>
+            <h3 class="cartao__nome">Café torrado em grãos 1 kg</h3>
+            <p class="cartao__fornecedor" title="Torrefação Serra Azul">Torrefação Serra Azul</p>
+            <p class="cartao__valor">R$ 54,90</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</section>
+
+<!-- =================================================================== -->
+<!-- ESTADO 4: erro de imagem (422)                                       -->
+<!-- =================================================================== -->
+<section class="proto-quadro" id="estado-imagem" aria-label="Estado 4">
+  <p class="proto-rotulo"><strong>Estado 4</strong> — <code>POST /produtos</code> 422, erro só na imagem (arquivo de 3 MB). Nome, valor e fornecedor preservados; o quadro da imagem fica com borda de erro e a dica pede outro arquivo. Vale igual para "A imagem deve ser JPEG, PNG ou WebP.", "A imagem está corrompida ou não pôde ser lida." e "A imagem deve ter no máximo 10.000 px de lado e 50 megapixels." (T-0010).</p>
+  <header class="cabecalho">
+    <div class="cabecalho__conteudo">
+      <svg class="cabecalho__marca" aria-hidden="true"><use href="#i-marca"/></svg>
+      <h1>Cadastro de produtos</h1>
+    </div>
+  </header>
+  <main class="pagina">
+    <section class="painel cartao-form" aria-labelledby="t-novo-4">
+      <h2 id="t-novo-4">Novo produto</h2>
+      <p class="painel__sub">Todos os campos são obrigatórios, exceto a imagem.</p>
+      <form method="post" action="/produtos" enctype="multipart/form-data" novalidate>
+        <div class="resumo-erros" role="alert">
+          <h3>Corrija os campos marcados para cadastrar.</h3>
+          <ul><li><a href="#imagem-4">Imagem: A imagem deve ter no máximo 2 MB.</a></li></ul>
+        </div>
+        <div class="campo"><label for="nome-4">Nome</label><input id="nome-4" name="nome" value="Geladeira frost free inox 480 L" autocomplete="off"></div>
+        <div class="campo">
+          <label for="valor-4">Valor<span class="sr-only"> em reais</span></label>
+          <div class="campo-prefixo"><span class="campo-prefixo__texto" aria-hidden="true">R$</span><input id="valor-4" name="valor" value="4799,00" inputmode="decimal" autocomplete="off" aria-describedby="valor-4-dica"></div>
+          <p class="dica" id="valor-4-dica">Ex.: 1234,56</p>
+        </div>
+        <div class="campo"><label for="fornecedor-4">Fornecedor</label><input id="fornecedor-4" name="fornecedor" value="Eletro Distribuidora Sul"></div>
+        <div class="campo">
+          <label for="imagem-4">Imagem <span class="rotulo-opcional">(opcional)</span></label>
+          <div class="campo-arquivo campo-arquivo--erro">
+            <input id="imagem-4" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" aria-invalid="true" aria-describedby="imagem-4-erro imagem-4-dica">
+            <p class="msg-erro" id="imagem-4-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>A imagem deve ter no máximo 2 MB.</p>
+            <p class="dica" id="imagem-4-dica">Escolha outro arquivo, ou cadastre sem imagem. JPEG, PNG ou WebP, até 2 MB.</p>
+          </div>
+        </div>
+        <button class="botao-primario" type="submit">Cadastrar</button>
+      </form>
+    </section>
+    <section class="painel produtos" aria-labelledby="t-prod-4">
+      <h2 id="t-prod-4">Produtos</h2>
+      <div class="vazio">
+        <svg aria-hidden="true"><use href="#i-caixa"/></svg>
+        <p class="vazio__titulo">Nenhum produto cadastrado.</p>
+        <p class="vazio__texto">Preencha o formulário para cadastrar o primeiro.</p>
+      </div>
+    </section>
+  </main>
+</section>
+
+<!-- =================================================================== -->
+<!-- ESTADO 5 (T-0013): servidor ocupado ao processar a imagem (503)      -->
+<!-- =================================================================== -->
+<section class="proto-quadro" id="estado-ocupado" aria-label="Estado 5">
+  <p class="proto-rotulo"><strong>Estado 5 (novo)</strong> — <code>POST /produtos</code> 503 com <code>erros.imagem</code> = "Servidor ocupado, tente de novo." (<code>imagens.ERRO_OCUPADO</code>). Mesmo componente do Estado 4, mas a dica muda: o arquivo não tem problema, basta reenviar.</p>
+  <header class="cabecalho">
+    <div class="cabecalho__conteudo">
+      <svg class="cabecalho__marca" aria-hidden="true"><use href="#i-marca"/></svg>
+      <h1>Cadastro de produtos</h1>
+      <p class="cabecalho__contagem">2 produtos</p>
+    </div>
+  </header>
+  <main class="pagina">
+    <section class="painel cartao-form" aria-labelledby="t-novo-5">
+      <h2 id="t-novo-5">Novo produto</h2>
+      <p class="painel__sub">Todos os campos são obrigatórios, exceto a imagem.</p>
+      <form method="post" action="/produtos" enctype="multipart/form-data" novalidate>
+        <div class="resumo-erros" role="alert">
+          <h3>Corrija os campos marcados para cadastrar.</h3>
+          <ul><li><a href="#imagem-5">Imagem: Servidor ocupado, tente de novo.</a></li></ul>
+        </div>
+        <div class="campo"><label for="nome-5">Nome</label><input id="nome-5" name="nome" value="Cadeira de escritório ergonômica" autocomplete="off"></div>
+        <div class="campo">
+          <label for="valor-5">Valor<span class="sr-only"> em reais</span></label>
+          <div class="campo-prefixo"><span class="campo-prefixo__texto" aria-hidden="true">R$</span><input id="valor-5" name="valor" value="1249,90" inputmode="decimal" autocomplete="off" aria-describedby="valor-5-dica"></div>
+          <p class="dica" id="valor-5-dica">Ex.: 1234,56</p>
+        </div>
+        <div class="campo"><label for="fornecedor-5">Fornecedor</label><input id="fornecedor-5" name="fornecedor" value="Móveis Ponto Sul"></div>
+        <div class="campo">
+          <label for="imagem-5">Imagem <span class="rotulo-opcional">(opcional)</span></label>
+          <div class="campo-arquivo campo-arquivo--erro">
+            <input id="imagem-5" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" aria-invalid="true" aria-describedby="imagem-5-erro imagem-5-dica">
+            <p class="msg-erro" id="imagem-5-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>Servidor ocupado, tente de novo.</p>
+            <p class="dica" id="imagem-5-dica">Escolha a mesma imagem de novo e envie em instantes, ou cadastre sem imagem.</p>
+          </div>
+        </div>
+        <button class="botao-primario" type="submit">Cadastrar</button>
+      </form>
+    </section>
+    <section class="painel produtos" aria-labelledby="t-prod-5" data-carrossel>
+      <div class="produtos__topo">
+        <div>
+          <h2 id="t-prod-5">Produtos</h2>
+          <p class="painel__sub">Mais recentes primeiro</p>
+        </div>
+        <div class="carrossel-nav" hidden>
+          <button class="botao-circulo" type="button" data-anterior aria-controls="carrossel-5" aria-label="Produtos anteriores"><svg aria-hidden="true"><use href="#i-anterior"/></svg></button>
+          <button class="botao-circulo" type="button" data-proximo aria-controls="carrossel-5" aria-label="Próximos produtos"><svg aria-hidden="true"><use href="#i-proximo"/></svg></button>
+        </div>
+      </div>
+      <div class="carrossel" id="carrossel-5" role="region" aria-label="Lista de produtos, role para o lado" tabindex="0">
+        <ul class="carrossel__lista">
+          <li class="cartao">
+            <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Geladeira frost free inox 480 L" preserveAspectRatio="xMidYMid slice"><use href="#f-geladeira"/></svg></div>
+            <h3 class="cartao__nome">Geladeira frost free inox 480 L</h3>
+            <p class="cartao__fornecedor" title="Eletro Distribuidora Sul">Eletro Distribuidora Sul</p>
+            <p class="cartao__valor">R$ 4.799,00</p>
+          </li>
+          <li class="cartao">
+            <div class="cartao__foto"><svg viewBox="0 0 100 100" role="img" aria-label="Imagem de Café torrado em grãos 1 kg" preserveAspectRatio="xMidYMid slice"><use href="#f-cafe"/></svg></div>
+            <h3 class="cartao__nome">Café torrado em grãos 1 kg</h3>
+            <p class="cartao__fornecedor" title="Torrefação Serra Azul">Torrefação Serra Azul</p>
+            <p class="cartao__valor">R$ 54,90</p>
+          </li>
+        </ul>
+      </div>
+    </section>
+  </main>
+</section>
+
+<!-- =================================================================== -->
+<!-- ESTADO 6 (T-0013): banco fora ao abrir a pagina (GET / 503)          -->
+<!-- =================================================================== -->
+<section class="proto-quadro" id="estado-banco-get" aria-label="Estado 6">
+  <p class="proto-rotulo"><strong>Estado 6 (novo)</strong> — <code>GET /</code> 503 com <code>aviso</code> (<code>AVISO_BANCO</code>). Aviso no topo, na largura toda, com <code>role="alert"</code>. Sem contagem no cabeçalho. O painel de produtos mostra "lista indisponível" e <strong>não</strong> mostra "Nenhum produto cadastrado." (não sabemos se há produtos). O formulário continua disponível.</p>
+  <header class="cabecalho">
+    <div class="cabecalho__conteudo">
+      <svg class="cabecalho__marca" aria-hidden="true"><use href="#i-marca"/></svg>
+      <h1>Cadastro de produtos</h1>
+    </div>
+  </header>
+  <main class="pagina">
+    <div class="aviso" role="alert">
+      <svg aria-hidden="true"><use href="#i-erro"/></svg>
+      <p class="aviso__texto">Banco de dados indisponivel no momento. Tente de novo em instantes.</p>
+    </div>
+    <section class="painel cartao-form" aria-labelledby="t-novo-6">
+      <h2 id="t-novo-6">Novo produto</h2>
+      <p class="painel__sub">Todos os campos são obrigatórios, exceto a imagem.</p>
+      <form method="post" action="/produtos" enctype="multipart/form-data" novalidate>
+        <div class="campo"><label for="nome-6">Nome</label><input id="nome-6" name="nome" autocomplete="off"></div>
+        <div class="campo">
+          <label for="valor-6">Valor<span class="sr-only"> em reais</span></label>
+          <div class="campo-prefixo"><span class="campo-prefixo__texto" aria-hidden="true">R$</span><input id="valor-6" name="valor" inputmode="decimal" autocomplete="off" aria-describedby="valor-6-dica"></div>
+          <p class="dica" id="valor-6-dica">Ex.: 1234,56</p>
+        </div>
+        <div class="campo"><label for="fornecedor-6">Fornecedor</label><input id="fornecedor-6" name="fornecedor"></div>
+        <div class="campo">
+          <label for="imagem-6">Imagem <span class="rotulo-opcional">(opcional)</span></label>
+          <div class="campo-arquivo"><input id="imagem-6" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="imagem-6-dica"><p class="dica" id="imagem-6-dica">JPEG, PNG ou WebP, até 2 MB</p></div>
+        </div>
+        <button class="botao-primario" type="submit">Cadastrar</button>
+      </form>
+    </section>
+    <section class="painel produtos" aria-labelledby="t-prod-6">
+      <h2 id="t-prod-6">Produtos</h2>
+      <div class="indisponivel">
+        <svg aria-hidden="true"><use href="#i-banco-fora"/></svg>
+        <p class="indisponivel__titulo">Lista indisponível no momento.</p>
+        <p class="indisponivel__texto">Os produtos voltam a aparecer aqui quando o banco de dados responder. Recarregue a página em instantes.</p>
+      </div>
+    </section>
+  </main>
+</section>
+
+<!-- =================================================================== -->
+<!-- ESTADO 7 (T-0013): banco fora ao cadastrar (POST /produtos 503)      -->
+<!-- =================================================================== -->
+<section class="proto-quadro" id="estado-banco-post" aria-label="Estado 7">
+  <p class="proto-rotulo"><strong>Estado 7 (novo)</strong> — <code>POST /produtos</code> 503 com <code>erros.banco</code>. O erro vai no resumo do formulário (sem link e sem erro de campo), com título próprio; valores preservados e dica de reenvio da imagem. Em geral a lista também falha (<code>aviso</code> preenchido): o painel mostra "lista indisponível", mas o aviso do topo <strong>não</strong> aparece (a mesma frase já está no resumo; um só <code>role="alert"</code>). Se a lista carregar, o carrossel aparece normal.</p>
+  <header class="cabecalho">
+    <div class="cabecalho__conteudo">
+      <svg class="cabecalho__marca" aria-hidden="true"><use href="#i-marca"/></svg>
+      <h1>Cadastro de produtos</h1>
+    </div>
+  </header>
+  <main class="pagina">
+    <section class="painel cartao-form" aria-labelledby="t-novo-7">
+      <h2 id="t-novo-7">Novo produto</h2>
+      <p class="painel__sub">Todos os campos são obrigatórios, exceto a imagem.</p>
+      <form method="post" action="/produtos" enctype="multipart/form-data" novalidate>
+        <div class="resumo-erros" role="alert">
+          <h3>Não foi possível cadastrar.</h3>
+          <p class="resumo-erros__msg">Banco de dados indisponivel no momento. Tente de novo em instantes.</p>
+          <p>Os dados digitados foram mantidos.</p>
+        </div>
+        <div class="campo"><label for="nome-7">Nome</label><input id="nome-7" name="nome" value="Lote de notebooks corporativos" autocomplete="off"></div>
+        <div class="campo">
+          <label for="valor-7">Valor<span class="sr-only"> em reais</span></label>
+          <div class="campo-prefixo"><span class="campo-prefixo__texto" aria-hidden="true">R$</span><input id="valor-7" name="valor" value="38900,00" inputmode="decimal" autocomplete="off" aria-describedby="valor-7-dica"></div>
+          <p class="dica" id="valor-7-dica">Ex.: 1234,56</p>
+        </div>
+        <div class="campo"><label for="fornecedor-7">Fornecedor</label><input id="fornecedor-7" name="fornecedor" value="Tech Atacado"></div>
+        <div class="campo">
+          <label for="imagem-7">Imagem <span class="rotulo-opcional">(opcional)</span></label>
+          <div class="campo-arquivo">
+            <input id="imagem-7" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="imagem-7-reenvio imagem-7-dica">
+            <p class="dica" id="imagem-7-reenvio"><strong>Se você tinha escolhido uma imagem, escolha de novo.</strong></p>
+            <p class="dica" id="imagem-7-dica">JPEG, PNG ou WebP, até 2 MB</p>
+          </div>
+        </div>
+        <button class="botao-primario" type="submit">Cadastrar</button>
+      </form>
+    </section>
+    <section class="painel produtos" aria-labelledby="t-prod-7">
+      <h2 id="t-prod-7">Produtos</h2>
+      <div class="indisponivel">
+        <svg aria-hidden="true"><use href="#i-banco-fora"/></svg>
+        <p class="indisponivel__titulo">Lista indisponível no momento.</p>
+        <p class="indisponivel__texto">Os produtos voltam a aparecer aqui quando o banco de dados responder. Recarregue a página em instantes.</p>
+      </div>
+    </section>
+  </main>
+</section>
+
+<!-- =================================================================== -->
+<!-- Referencia: todas as mensagens do servidor                           -->
+<!-- =================================================================== -->
+<section class="proto-quadro" id="mensagens" aria-label="Mensagens de erro">
+  <p class="proto-rotulo"><strong>Referência</strong> — todas as mensagens do servidor e onde aparecem. Texto literal de <code>app/validacao.py</code>, <code>app/imagens.py</code> e <code>app/main.py</code>; não mudar (inclusive "indisponivel" sem acento).</p>
+  <div class="proto-mensagens">
+    <table>
+      <thead><tr><th scope="col">Campo</th><th scope="col">Mensagem</th><th scope="col">Quando</th><th scope="col">Onde / estado</th></tr></thead>
+      <tbody>
+        <tr><td>Nome</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>Informe o nome.</p></td><td>vazio ou só espaços</td><td>campo + resumo (3)</td></tr>
+        <tr><td>Nome</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>O nome deve ter no máximo 120 caracteres.</p></td><td>121+ caracteres</td><td>campo + resumo (3)</td></tr>
+        <tr><td>Nome</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>O nome contém caracteres inválidos.</p></td><td>caractere de controle</td><td>campo + resumo (3)</td></tr>
+        <tr><td>Valor</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>Informe o valor.</p></td><td>vazio</td><td>campo + resumo (3)</td></tr>
+        <tr><td>Valor</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>Valor inválido. Use o formato 1234,56 (até duas casas decimais).</p></td><td>formato inválido, 3+ casas</td><td>campo + resumo (3)</td></tr>
+        <tr><td>Valor</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>O valor deve ser maior que zero.</p></td><td>0 ou negativo</td><td>campo + resumo (3)</td></tr>
+        <tr><td>Valor</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>O valor máximo é R$ 99.999.999,99.</p></td><td>acima do teto</td><td>campo + resumo (3)</td></tr>
+        <tr><td>Fornecedor</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>Informe o fornecedor.</p></td><td>vazio</td><td>campo + resumo (3)</td></tr>
+        <tr><td>Fornecedor</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>O fornecedor deve ter no máximo 120 caracteres.</p></td><td>121+ caracteres</td><td>campo + resumo (3)</td></tr>
+        <tr><td>Fornecedor</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>O fornecedor contém caracteres inválidos.</p></td><td>caractere de controle</td><td>campo + resumo (3)</td></tr>
+        <tr><td>Imagem</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>A imagem deve ter no máximo 2 MB.</p></td><td>arquivo &gt; 2 MB (422)</td><td>quadro da imagem + resumo (4)</td></tr>
+        <tr><td>Imagem</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>A imagem deve ser JPEG, PNG ou WebP.</p></td><td>tipo recusado (422)</td><td>quadro da imagem + resumo (4)</td></tr>
+        <tr><td>Imagem</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>A imagem está corrompida ou não pôde ser lida.</p></td><td>não decodifica (422, T-0010)</td><td>quadro da imagem + resumo (4)</td></tr>
+        <tr><td>Imagem</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>A imagem deve ter no máximo 10.000 px de lado e 50 megapixels.</p></td><td>pixels demais (422, T-0010)</td><td>quadro da imagem + resumo (4)</td></tr>
+        <tr><td>Imagem</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>Servidor ocupado, tente de novo.</p></td><td>sem vaga para decodificar (503, T-0010)</td><td>quadro da imagem + resumo, dica de reenvio (5)</td></tr>
+        <tr><td>Página</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>Banco de dados indisponivel no momento. Tente de novo em instantes.</p></td><td>banco fora no <code>GET /</code> (503)</td><td>aviso no topo + lista indisponível (6)</td></tr>
+        <tr><td>Formulário</td><td><p class="msg-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>Banco de dados indisponivel no momento. Tente de novo em instantes.</p></td><td>banco fora no <code>POST</code> (503)</td><td>resumo, sem link nem campo (7)</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+</body>
+</html>
