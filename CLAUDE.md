@@ -14,7 +14,7 @@ Ver `docs/adr/ADR-0001 Stack do projeto.md`: Python + FastAPI (páginas renderiz
 - Testes: `docker compose run --build --rm test`
 - Lint (ruff): `docker compose run --build --rm lint`
 - Vulnerabilidades (pip-audit, arquivos travados e imagem dev): `docker compose run --build --rm audit`
-- Travar dependencias (hash): editar `requirements.in`/`requirements-dev.in` e rodar `docker compose run --build --rm lock`; commitar os `.in` e os dois `requirements*.txt` (nunca editar os `.txt` a mao). O `--build` e necessario porque `run` nao reconstroi imagem existente (O1).
+- Travar dependencias (hash): editar `requirements.in`/`requirements-dev.in`/`requirements-lock.in` e rodar `docker compose run --build --rm lock` (usuario sem root 1000:1000; outro UID: `LOCK_UID`/`LOCK_GID`); commitar os 3 `.in` e os 3 `requirements*.txt` (nunca editar os `.txt` a mao). O `--build` e necessario porque `run` nao reconstroi imagem existente (O1).
 - Parar: `docker compose down` (**nunca** `down -v`, que apaga o banco)
 
 ### Portas por worktree
