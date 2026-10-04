@@ -26,7 +26,8 @@ def statement_timeout_ms() -> int:
         valor = int(os.environ.get("DB_STATEMENT_TIMEOUT_MS", "5000"))
     except ValueError:
         return 5000
-    return valor if valor > 0 else 5000
+    # acima de 2147483647 (inteiro de 32 bits do Postgres) o servidor recusa a conexao
+    return valor if 0 < valor <= 2147483647 else 5000
 
 
 def uploads_dir() -> str:
