@@ -100,7 +100,7 @@ O Revisor testa estes casos. Nenhum pode gerar erro 500.
 - Perfil de cor ICC: mantido (nao identifica a pessoa e evita mudar as cores); reserializado com `ImageCms` (D1, 2026-10-01). Revisavel.
 - Imagens gravadas antes da mudanca nao sao reprocessadas.
 - A imagem `dev` (servicos `test`, `lint`, `audit`) continua como root: nao publica porta e so roda localmente (RNF-07 vale para a runtime).
-- A CSP permite `style-src 'unsafe-inline'` enquanto o CSS estiver dentro de `index.html`; tirar o CSS para arquivo fica para uma tarefa de interface.
+- Desde a T-0013 o CSS e o JS ficam em arquivos (`/static/tokens.css`, `/static/cadastro.css`, `/static/carrossel.js`) e a CSP nao tem mais `'unsafe-inline'`. O HTML nao pode ter `<style>`, `style=""`, `<script>` inline nem `on*=`.
 - Analise de ameacas da T-0012 (2026-10-01): 50 MP mantidos tambem para WebP, com semaforo (D2); JPEG MPF/MPO aceito como JPEG de 1 quadro (D3); fila cheia -> 503 "Servidor ocupado, tente de novo." (D4).
 
 ## Notas de implementacao (T-0010)
@@ -112,7 +112,7 @@ O Revisor testa estes casos. Nenhum pode gerar erro 500.
 
 ## Notas de implementacao (T-0007)
 
-- RNF-08 (definicao na tabela "Definido pela T-0006"; valores exatos): toda resposta envia CSP (`default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` e `Referrer-Policy: strict-origin-when-cross-origin`, por um middleware ASGI (`CabecalhosSeguranca` em `app/main.py`) que envolve o app inteiro (`AppComCabecalhos`), por fora do `ServerErrorMiddleware`, entao cobre tambem 411/413 e o 500 (SEC-0006).
+- RNF-08 (definicao na tabela "Definido pela T-0006"; valores exatos): toda resposta envia CSP (`default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'`), `X-Frame-Options: DENY`, `X-Content-Type-Options: nosniff` e `Referrer-Policy: strict-origin-when-cross-origin`, por um middleware ASGI (`CabecalhosSeguranca` em `app/main.py`) que envolve o app inteiro (`AppComCabecalhos`), por fora do `ServerErrorMiddleware`, entao cobre tambem 411/413 e o 500 (SEC-0006).
 - `'unsafe-inline'` so em `style-src`, porque o CSS esta num `<style>` do template; remover quando o CSS for para arquivo.
 
 ## Decisões

@@ -1,60 +1,165 @@
 <!doctype html>
 <html lang="pt-BR">
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Cadastro de produtos</title>
-  <style>
-    body { font-family: system-ui, sans-serif; max-width: 42rem; margin: 2rem auto; padding: 0 1rem; }
-    label { display: block; margin-top: .75rem; }
-    input { width: 100%; padding: .4rem; box-sizing: border-box; }
-    .erro { color: #b00020; margin: .25rem 0 0; }
-    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
-    th, td { text-align: left; padding: .4rem; border-bottom: 1px solid #ddd; }
-    img.foto { width: 4rem; height: 4rem; object-fit: cover; border-radius: 4px; display: block; }
-    .sem-foto { display: flex; align-items: center; justify-content: center; width: 4rem; height: 4rem; background: #eee; color: #777; font-size: .7rem; text-align: center; border-radius: 4px; }
-    td.valor { text-align: right; white-space: nowrap; }
-  </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cadastro de produtos</title>
+<link rel="stylesheet" href="/static/tokens.css">
+<link rel="stylesheet" href="/static/cadastro.css">
+<script src="/static/carrossel.js" defer></script>
 </head>
 <body>
-  <h1>Cadastro de produtos</h1>
 
-  <form method="post" action="/produtos" enctype="multipart/form-data" novalidate>
-    <label for="nome">Nome</label>
-    <input id="nome" name="nome" value="{{ valores.nome or '' }}">
-    {% if erros.nome %}<p class="erro">{{ erros.nome }}</p>{% endif %}
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-marca" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#0F5F73"/><path d="M7 12h10M12 7v10" stroke="#fff" stroke-width="2.5" stroke-linecap="round"/></symbol>
+  <symbol id="i-erro" viewBox="0 0 16 16"><circle cx="8" cy="8" r="7" fill="currentColor"/><path d="M8 4.2v4.6" stroke="#fff" stroke-width="1.8" stroke-linecap="round"/><circle cx="8" cy="11.4" r="1.1" fill="#fff"/></symbol>
+  <symbol id="i-anterior" viewBox="0 0 20 20"><path d="M12.5 4.5 7 10l5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-proximo" viewBox="0 0 20 20"><path d="M7.5 4.5 13 10l-5.5 5.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+  <symbol id="i-sem-imagem" viewBox="0 0 40 40"><rect x="5" y="8" width="30" height="24" rx="3" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="26" cy="15" r="3" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 29l9-9 6 6 4-4 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+  <symbol id="i-caixa" viewBox="0 0 48 48"><path d="M8 16 24 8l16 8v18l-16 8-16-8z" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/><path d="M8 16l16 8 16-8M24 24v18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linejoin="round"/></symbol>
+  <!-- T-0013: banco de dados com traco (lista indisponivel) -->
+  <symbol id="i-banco-fora" viewBox="0 0 48 48"><ellipse cx="22" cy="11" rx="13" ry="5" fill="none" stroke="currentColor" stroke-width="2.5"/><path d="M9 11v24c0 2.8 5.8 5 13 5M35 11v12M9 23c0 2.8 5.8 5 13 5s13-2.2 13-5" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/><path d="M30 31l10 10M40 31 30 41" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"/></symbol>
+</svg>
 
-    <label for="valor">Valor (R$)</label>
-    <input id="valor" name="valor" inputmode="decimal" placeholder="1234,56" value="{{ valores.valor or '' }}">
-    {% if erros.valor %}<p class="erro">{{ erros.valor }}</p>{% endif %}
+{% set tem_erros = erros|length > 0 %}
+{% set erros_campo = tem_erros and not erros.banco %}
+<header class="cabecalho">
+  <div class="cabecalho__conteudo">
+    <svg class="cabecalho__marca" aria-hidden="true"><use href="#i-marca"/></svg>
+    <h1>Cadastro de produtos</h1>
+    {% if produtos and not aviso %}<p class="cabecalho__contagem">{{ produtos|length }} {{ "produto" if produtos|length == 1 else "produtos" }}</p>{% endif %}
+  </div>
+</header>
 
-    <label for="fornecedor">Fornecedor</label>
-    <input id="fornecedor" name="fornecedor" value="{{ valores.fornecedor or '' }}">
-    {% if erros.fornecedor %}<p class="erro">{{ erros.fornecedor }}</p>{% endif %}
-
-    <label for="imagem">Imagem (opcional — JPEG, PNG ou WebP, até 2 MB)</label>
-    <input id="imagem" name="imagem" type="file" accept="image/jpeg,image/png,image/webp">
-    {% if erros.imagem %}<p class="erro">{{ erros.imagem }}</p>{% endif %}
-
-    {% if erros.banco %}<p class="erro" role="alert">{{ erros.banco }}</p>{% endif %}
-
-    <p><button type="submit">Cadastrar</button></p>
-  </form>
-
-  <h2>Produtos</h2>
-  {% if aviso %}
-  <p class="erro" role="alert">{{ aviso }}</p>
-  {% elif produtos %}
-  <table>
-    <thead><tr><th>Imagem</th><th>Nome</th><th>Fornecedor</th><th>Valor</th></tr></thead>
-    <tbody>
-    {% for p in produtos %}
-      <tr><td>{% if p.imagem_arquivo %}<img class="foto" src="/uploads/{{ p.imagem_arquivo }}" alt="Imagem de {{ p.nome }}">{% else %}<span class="sem-foto" title="Sem imagem">sem imagem</span>{% endif %}</td><td>{{ p.nome }}</td><td>{{ p.fornecedor }}</td><td class="valor">{{ p.valor | reais }}</td></tr>
-    {% endfor %}
-    </tbody>
-  </table>
-  {% else %}
-  <p>Nenhum produto cadastrado.</p>
+<main class="pagina">
+  {% if aviso and not erros.banco %}
+  <div class="aviso" role="alert">
+    <svg aria-hidden="true"><use href="#i-erro"/></svg>
+    <p class="aviso__texto">{{ aviso }}</p>
+  </div>
   {% endif %}
+
+  <section class="painel cartao-form" aria-labelledby="t-novo">
+    <h2 id="t-novo">Novo produto</h2>
+    <p class="painel__sub">Todos os campos são obrigatórios, exceto a imagem.</p>
+    <form method="post" action="/produtos" enctype="multipart/form-data" novalidate>
+      {% if erros.banco %}
+      <div class="resumo-erros" role="alert">
+        <h3>Não foi possível cadastrar.</h3>
+        <p class="resumo-erros__msg">{{ erros.banco }}</p>
+        <p>Os dados digitados foram mantidos.</p>
+      </div>
+      {% elif tem_erros %}
+      <div class="resumo-erros" role="alert">
+        <h3>Corrija os campos marcados para cadastrar.</h3>
+        <ul>
+          {% for campo, rotulo in rotulos.items() if erros[campo] %}
+          <li><a href="#{{ campo }}">{{ rotulo }}: {{ erros[campo] }}</a></li>
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+
+      <div class="campo">
+        <label for="nome">Nome</label>
+        <input id="nome" name="nome" value="{{ valores.nome or '' }}" autocomplete="off"{% if erros.nome %} aria-invalid="true" aria-describedby="nome-erro"{% endif %}{% if foco == 'nome' %} autofocus{% endif %}>
+        {% if erros.nome %}<p class="msg-erro" id="nome-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>{{ erros.nome }}</p>{% endif %}
+      </div>
+
+      <div class="campo">
+        <label for="valor">Valor<span class="sr-only"> em reais</span></label>
+        <div class="campo-prefixo">
+          <span class="campo-prefixo__texto" aria-hidden="true">R$</span>
+          <input id="valor" name="valor" value="{{ valores.valor or '' }}" inputmode="decimal" autocomplete="off"{% if erros.valor %} aria-invalid="true" aria-describedby="valor-erro valor-dica"{% else %} aria-describedby="valor-dica"{% endif %}{% if foco == 'valor' %} autofocus{% endif %}>
+        </div>
+        {% if erros.valor %}<p class="msg-erro" id="valor-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>{{ erros.valor }}</p>{% endif %}
+        <p class="dica" id="valor-dica">Ex.: 1234,56</p>
+      </div>
+
+      <div class="campo">
+        <label for="fornecedor">Fornecedor</label>
+        <input id="fornecedor" name="fornecedor" value="{{ valores.fornecedor or '' }}"{% if erros.fornecedor %} aria-invalid="true" aria-describedby="fornecedor-erro"{% endif %}{% if foco == 'fornecedor' %} autofocus{% endif %}>
+        {% if erros.fornecedor %}<p class="msg-erro" id="fornecedor-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>{{ erros.fornecedor }}</p>{% endif %}
+      </div>
+
+      <div class="campo">
+        <label for="imagem">Imagem <span class="rotulo-opcional">(opcional)</span></label>
+        {% if erros.imagem %}
+        <div class="campo-arquivo campo-arquivo--erro">
+          <input id="imagem" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" aria-invalid="true" aria-describedby="imagem-erro imagem-dica"{% if foco == 'imagem' %} autofocus{% endif %}>
+          <p class="msg-erro" id="imagem-erro"><svg aria-hidden="true"><use href="#i-erro"/></svg>{{ erros.imagem }}</p>
+          {% if erros.imagem == erro_ocupado %}
+          <p class="dica" id="imagem-dica">Escolha a mesma imagem de novo e envie em instantes, ou cadastre sem imagem.</p>
+          {% else %}
+          <p class="dica" id="imagem-dica">Escolha outro arquivo, ou cadastre sem imagem. JPEG, PNG ou WebP, até 2 MB.</p>
+          {% endif %}
+        </div>
+        {% elif tem_erros %}
+        <div class="campo-arquivo">
+          <input id="imagem" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="imagem-reenvio imagem-dica">
+          <p class="dica" id="imagem-reenvio"><strong>Se você tinha escolhido uma imagem, escolha de novo.</strong></p>
+          <p class="dica" id="imagem-dica">JPEG, PNG ou WebP, até 2 MB</p>
+        </div>
+        {% else %}
+        <div class="campo-arquivo">
+          <input id="imagem" name="imagem" type="file" accept="image/jpeg,image/png,image/webp" aria-describedby="imagem-dica">
+          <p class="dica" id="imagem-dica">JPEG, PNG ou WebP, até 2 MB</p>
+        </div>
+        {% endif %}
+      </div>
+
+      <button class="botao-primario" type="submit">Cadastrar</button>
+    </form>
+  </section>
+
+  {% if aviso %}
+  <section class="painel produtos" aria-labelledby="t-prod">
+    <h2 id="t-prod">Produtos</h2>
+    <div class="indisponivel">
+      <svg aria-hidden="true"><use href="#i-banco-fora"/></svg>
+      <p class="indisponivel__titulo">Lista indisponível no momento.</p>
+      <p class="indisponivel__texto">Os produtos voltam a aparecer aqui quando o banco de dados responder. Recarregue a página em instantes.</p>
+    </div>
+  </section>
+  {% elif produtos %}
+  <section class="painel produtos" aria-labelledby="t-prod" data-carrossel>
+    <div class="produtos__topo">
+      <div>
+        <h2 id="t-prod">Produtos</h2>
+        <p class="painel__sub">Mais recentes primeiro</p>
+      </div>
+      <div class="carrossel-nav" hidden>
+        <button class="botao-circulo" type="button" data-anterior aria-controls="carrossel" aria-label="Produtos anteriores"><svg aria-hidden="true"><use href="#i-anterior"/></svg></button>
+        <button class="botao-circulo" type="button" data-proximo aria-controls="carrossel" aria-label="Próximos produtos"><svg aria-hidden="true"><use href="#i-proximo"/></svg></button>
+      </div>
+    </div>
+    <div class="carrossel" id="carrossel" role="region" aria-label="Lista de produtos, role para o lado" tabindex="0">
+      <ul class="carrossel__lista">
+        {% for p in produtos %}
+        <li class="cartao">
+          {% if p.imagem_arquivo %}
+          <div class="cartao__foto"><img src="/uploads/{{ p.imagem_arquivo }}" alt="Imagem de {{ p.nome }}"></div>
+          {% else %}
+          <div class="cartao__foto cartao__foto--vazia"><svg aria-hidden="true"><use href="#i-sem-imagem"/></svg><span>sem imagem</span></div>
+          {% endif %}
+          <h3 class="cartao__nome">{{ p.nome }}</h3>
+          <p class="cartao__fornecedor" title="{{ p.fornecedor }}">{{ p.fornecedor }}</p>
+          <p class="cartao__valor">{{ p.valor | reais }}</p>
+        </li>
+        {% endfor %}
+      </ul>
+    </div>
+  </section>
+  {% else %}
+  <section class="painel produtos" aria-labelledby="t-prod">
+    <h2 id="t-prod">Produtos</h2>
+    <div class="vazio">
+      <svg aria-hidden="true"><use href="#i-caixa"/></svg>
+      <p class="vazio__titulo">Nenhum produto cadastrado.</p>
+      <p class="vazio__texto">Preencha o formulário para cadastrar o primeiro.</p>
+    </div>
+  </section>
+  {% endif %}
+</main>
 </body>
 </html>

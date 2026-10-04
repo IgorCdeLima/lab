@@ -1,0 +1,21 @@
+/*
+ * SO DO PROTOTIPO (T-0013) - NAO vai para o app.
+ * Barra rosa de navegacao entre estados, rotulos dos quadros e tabela de referencia das mensagens.
+ */
+.proto-barra {
+  position: sticky; top: 0; z-index: 10; background: #4A1530; color: #fff;
+  padding: var(--esp-2) var(--esp-4); font-size: var(--texto-sm);
+  display: flex; flex-wrap: wrap; gap: var(--esp-2) var(--esp-4); align-items: center;
+}
+.proto-barra strong { margin-right: var(--esp-2); }
+.proto-barra a { color: #fff; }
+.proto-novo { background: #fff; color: #4A1530; border-radius: var(--raio-pilula); padding: 0 var(--esp-2); font-size: var(--texto-xs); font-weight: var(--peso-forte); margin-left: var(--esp-1); }
+.proto-quadro { border-top: 6px solid #B4235A; scroll-margin-top: 4.5rem; }
+.proto-rotulo {
+  margin: 0; padding: var(--esp-2) var(--esp-4); background: #FCE8F0; color: #6E1238;
+  font-size: var(--texto-sm); border-bottom: 1px dashed #B4235A;
+}
+.proto-mensagens { max-width: var(--largura-max); margin: 0 auto; padding: var(--esp-6) var(--esp-4); overflow-x: auto; }
+.proto-mensagens table { border-collapse: collapse; width: 100%; background: var(--cor-superficie); font-size: var(--texto-sm); }
+.proto-mensagens th, .proto-mensagens td { text-align: left; padding: var(--esp-2) var(--esp-3); border-bottom: 1px solid var(--cor-borda); vertical-align: top; }
+.proto-mensagens .msg-erro { margin: 0; }

@@ -1,3 +1,4 @@
+import logging
 from contextlib import asynccontextmanager
 from decimal import Decimal
 from pathlib import Path
@@ -5,9 +6,10 @@ from typing import Annotated
 
 from fastapi import Depends, FastAPI, File, Form, HTTPException, Request, UploadFile
 from fastapi.responses import FileResponse, HTMLResponse, JSONResponse, RedirectResponse
+from fastapi.staticfiles import StaticFiles
 from fastapi.templating import Jinja2Templates
 from sqlalchemy import select
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import OperationalError, SQLAlchemyError
 from sqlalchemy.orm import Session
 from starlette.datastructures import MutableHeaders
 
@@ -24,7 +26,7 @@ async def lifespan(_: FastAPI):
 
 CABECALHOS_SEGURANCA = {
     "Content-Security-Policy": (
-        "default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; "
+        "default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; "
         "form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
     ),
     "X-Frame-Options": "DENY",
@@ -37,7 +39,9 @@ class CabecalhosSeguranca:
     """Middleware ASGI puro: define (substitui, nunca duplica) os cabeçalhos em toda resposta.
 
     Envolve o app inteiro (ver `AppComCabecalhos`): cobre 411/413 e o 500 do ServerErrorMiddleware.
-    'unsafe-inline' só em style-src: o CSS está num <style> do template (RNF-08, T-0007).
+    Sem 'unsafe-inline': CSS e JS ficam em arquivos de /static (style-src e script-src 'self';
+    T-0013, que tirou o <style> do template; a CSP vinha da T-0007, RNF-08). O HTML nao pode ter
+    <style>, style="", <script> inline nem on*=.
     """
 
     def __init__(self, app):
@@ -94,6 +98,11 @@ async def limitar_requisicao(request: Request, call_next):
     return await call_next(request)
 
 
+log = logging.getLogger("uvicorn.error")
+
+# So os 3 arquivos da tela (tokens.css, cadastro.css, carrossel.js); sem listagem de diretorio.
+app.mount("/static", StaticFiles(directory=Path(__file__).parent / "static"), name="static")
+
 templates = Jinja2Templates(directory=Path(__file__).parent / "templates")
 
 
@@ -106,6 +115,7 @@ def formatar_reais(valor: Decimal) -> str:
 templates.env.filters["reais"] = formatar_reais
 
 
+ROTULOS = {"nome": "Nome", "valor": "Valor", "fornecedor": "Fornecedor", "imagem": "Imagem"}
 AVISO_BANCO = "Banco de dados indisponivel no momento. Tente de novo em instantes."
 
 
@@ -114,12 +124,13 @@ def _pagina(request: Request, sessao: Session, status_code=200, erros=None, valo
 
     O status pedido (422/503) e mantido; so a pagina sem erro (GET /) vira 503.
     """
+    erros = erros or {}
     aviso = None
     try:
         produtos = sessao.scalars(
             select(Produto).order_by(Produto.criado_em.desc(), Produto.id.desc())
         ).all()
-    except OperationalError:
+    except SQLAlchemyError:  # OperationalError, ProgrammingError, IntegrityError... (T-0013, P2)
         sessao.rollback()
         produtos, aviso = [], AVISO_BANCO
         if status_code == 200:
@@ -127,7 +138,15 @@ def _pagina(request: Request, sessao: Session, status_code=200, erros=None, valo
     return templates.TemplateResponse(
         request,
         "index.html",
-        {"produtos": produtos, "erros": erros or {}, "valores": valores or {}, "aviso": aviso},
+        {
+            "produtos": produtos,
+            "erros": erros,
+            "valores": valores or {},
+            "aviso": aviso,
+            "rotulos": ROTULOS,
+            "foco": next((c for c in ROTULOS if c in erros), None),
+            "erro_ocupado": imagens.ERRO_OCUPADO,
+        },
         status_code=status_code,
     )
 
@@ -172,9 +191,22 @@ def cadastrar(
     try:
         sessao.add(Produto(**dados, imagem_arquivo=arquivo))
         sessao.commit()
-    except OperationalError:
+    except SQLAlchemyError as erro:
+        # P3: se a conexao caiu durante o COMMIT (OperationalError sem sqlstate), o servidor pode
+        # ter gravado a linha. Conferir em conexao nova antes de apagar o arquivo; na duvida,
+        # manter (orfao e melhor que linha apontando para arquivo inexistente). Erro com sqlstate
+        # (ex.: timeout 57014, violacao de integridade) o servidor desfez a transacao.
         if arquivo:
-            imagens.remover(arquivo)
+            ambiguo = (
+                isinstance(erro, OperationalError)
+                and getattr(getattr(erro, "orig", None), "sqlstate", None) is None
+            )
+            existe = db.imagem_referenciada(arquivo) if ambiguo else False
+            if existe is False:
+                imagens.remover(arquivo)
+            else:
+                log.warning("commit incerto: arquivo %s mantido (linha %s)", arquivo,
+                            "gravada" if existe else "nao confirmada")
         sessao.rollback()
         return _pagina(
             request,

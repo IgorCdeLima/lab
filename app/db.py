@@ -42,6 +42,17 @@ def criar_tabelas() -> None:
         conn.execute(text("ALTER TABLE produto ADD COLUMN IF NOT EXISTS imagem_arquivo VARCHAR(64)"))
 
 
+def imagem_referenciada(arquivo: str) -> bool | None:
+    """Em conexao nova: True/False se alguma linha usa o arquivo; None se nao deu para conferir."""
+    try:
+        with get_engine().connect() as conn:
+            return conn.execute(
+                text("SELECT 1 FROM produto WHERE imagem_arquivo = :a LIMIT 1"), {"a": arquivo}
+            ).first() is not None
+    except Exception:
+        return None
+
+
 def banco_ok() -> bool:
     """True se o banco responde a uma consulta simples."""
     try:
