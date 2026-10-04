@@ -6,7 +6,7 @@ from app.models import Produto
 from tests.test_imagens import PNG, VALIDO, enviar  # noqa: F401 (pasta_uploads é autouse lá)
 
 CSP = (
-    "default-src 'self'; img-src 'self'; style-src 'self' 'unsafe-inline'; "
+    "default-src 'self'; img-src 'self'; style-src 'self'; script-src 'self'; "
     "form-action 'self'; frame-ancestors 'none'; base-uri 'none'; object-src 'none'"
 )
 
