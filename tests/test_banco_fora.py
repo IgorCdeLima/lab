@@ -1,8 +1,8 @@
 """BUG-T0010-03: banco lento ou parado nao pode virar 500 nas paginas."""
 import pytest
-from sqlalchemy.exc import OperationalError
+from sqlalchemy.exc import IntegrityError, OperationalError, ProgrammingError
 
-from app import imagens
+from app import db, imagens
 from app.main import AVISO_BANCO
 
 from .test_imagens import PNG, enviar
@@ -50,6 +50,7 @@ def test_503_servidor_ocupado_continua_503_com_banco_fora(client, banco_fora, mo
 
 def test_commit_com_banco_fora_vira_503_e_remove_arquivo(client, sessao, uploads, monkeypatch):
     monkeypatch.setattr(sessao, "commit", _banco_fora)
+    monkeypatch.setattr(db, "imagem_referenciada", lambda _: False)
     r = enviar(client, PNG)
     assert r.status_code == 503
     assert AVISO_BANCO in r.text
@@ -119,4 +120,81 @@ def test_post_com_tabela_travada_e_503_sem_arquivo_orfao(banco_travado, uploads)
     r = enviar(TestClient(app), PNG)
     assert r.status_code == 503
     assert AVISO_BANCO in r.text
+    assert list(uploads.iterdir()) == []
+
+
+# T-0013 P2: erro de banco que nao e OperationalError tambem vira 503 com aviso.
+
+
+def _integridade(*_args, **_kwargs):
+    raise IntegrityError("INSERT", {}, Exception("violacao"))
+
+
+def _programacao(*_args, **_kwargs):
+    raise ProgrammingError("SELECT", {}, Exception("tabela inexistente"))
+
+
+@pytest.mark.parametrize("erro", [_integridade, _programacao])
+def test_get_com_erro_de_sqlalchemy_generico_vira_503(client, sessao, monkeypatch, erro):
+    monkeypatch.setattr(sessao, "scalars", erro)
+    r = client.get("/")
+    assert r.status_code == 503
+    assert AVISO_BANCO in r.text
+    assert "Traceback" not in r.text
+    assert "Nenhum produto cadastrado" not in r.text
+
+
+def test_commit_com_integrity_error_vira_503_sem_arquivo_orfao(client, sessao, uploads, monkeypatch):
+    monkeypatch.setattr(sessao, "commit", _integridade)
+    monkeypatch.setattr(db, "imagem_referenciada", lambda _: False)
+    r = enviar(client, PNG)
+    assert r.status_code == 503
+    assert AVISO_BANCO in r.text
+    assert "Traceback" not in r.text
+    assert list(uploads.iterdir()) == []
+
+
+# T-0013 P3: commit ambiguo (a conexao caiu e o servidor pode ter gravado).
+
+
+def test_commit_ambiguo_com_linha_gravada_mantem_o_arquivo(client, sessao, uploads, monkeypatch):
+    monkeypatch.setattr(sessao, "commit", _banco_fora)
+    monkeypatch.setattr(db, "imagem_referenciada", lambda _: True)
+    r = enviar(client, PNG)
+    assert r.status_code == 503
+    assert len(list(uploads.iterdir())) == 1
+
+
+def test_commit_ambiguo_sem_conseguir_conferir_mantem_o_arquivo(client, sessao, uploads, monkeypatch):
+    monkeypatch.setattr(sessao, "commit", _banco_fora)
+    monkeypatch.setattr(db, "imagem_referenciada", lambda _: None)
+    r = enviar(client, PNG)
+    assert r.status_code == 503
+    assert len(list(uploads.iterdir())) == 1
+
+
+def test_imagem_referenciada_sem_banco_devolve_none(monkeypatch):
+    monkeypatch.setenv("POSTGRES_HOST", "host-inexistente.invalid")
+    monkeypatch.setattr(db, "_engine", None)
+    try:
+        assert db.imagem_referenciada("a" * 32 + ".png") is None
+    finally:
+        db._engine = None
+
+
+def test_commit_com_erro_do_servidor_sqlstate_nao_confere_e_remove(client, sessao, uploads, monkeypatch):
+    """Erro com sqlstate (ex.: timeout 57014): o servidor desfez; nao ha ambiguidade."""
+    class Orig(Exception):
+        sqlstate = "57014"
+
+    def cancelado(*_a, **_k):
+        raise OperationalError("INSERT", {}, Orig("canceling statement"))
+
+    def nao_chamar(_):
+        raise AssertionError("nao devia conferir")
+
+    monkeypatch.setattr(sessao, "commit", cancelado)
+    monkeypatch.setattr(db, "imagem_referenciada", nao_chamar)
+    r = enviar(client, PNG)
+    assert r.status_code == 503
     assert list(uploads.iterdir()) == []
